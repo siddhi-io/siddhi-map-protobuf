@@ -1,0 +1,2 @@
+io.siddhi.extension.map.protobuf.sinkmapper.ProtobufSinkMapper
+io.siddhi.extension.map.protobuf.sourcemapper.ProtobufSourceMapper

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/component/siddhi-map-protobuf.iml" filepath="$PROJECT_DIR$/component/siddhi-map-protobuf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/siddhi-map-protobuf-1.iml" filepath="$PROJECT_DIR$/.idea/siddhi-map-protobuf-1.iml" />
+    </modules>
+  </component>
+</project>

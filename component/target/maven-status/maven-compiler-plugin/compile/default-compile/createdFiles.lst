@@ -1,0 +1,8 @@
+io/siddhi/extension/map/protobuf/sourcemapper/ProtobufSourceMapper$1.class
+META-INF/annotations/io.siddhi.annotation.Extension
+io/siddhi/extension/map/protobuf/sinkmapper/ProtobufSinkMapper.class
+io/siddhi/extension/map/protobuf/sourcemapper/ProtobufSourceMapper$MappingPositionData.class
+io/siddhi/extension/map/protobuf/sinkmapper/ProtobufSinkMapper$MappingPositionData.class
+io/siddhi/extension/map/protobuf/utils/GrpcConstants.class
+io/siddhi/extension/map/protobuf/sourcemapper/ProtobufSourceMapper.class
+io/siddhi/extension/map/protobuf/utils/ProtobufUtils.class

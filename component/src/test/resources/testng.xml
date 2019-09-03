@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Siddhi-Map-Protobuf-Test-Suite">
+    <test name="Siddhi-map-protobuf-tests" enabled="true" preserve-order="true" parallel="false">
+        <classes>
+            <class name="io.siddhi.extension.map.protobuf.sinkmapper.TestCaseOfProtobufSinkMapper"/>
+            <class name="io.siddhi.extension.map.protobuf.sourcemapper.TestCaseOfProtobufSourceMapper"/>
+        </classes>
+    </test>
+</suite>
