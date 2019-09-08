@@ -146,6 +146,7 @@ public final class MyServiceGrpc {
      */
     public void send(org.wso2.grpc.test.Request request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
+//      responseObserver.onNext(); todo
       asyncUnimplementedUnaryCall(getSendMethod(), responseObserver);
     }
 

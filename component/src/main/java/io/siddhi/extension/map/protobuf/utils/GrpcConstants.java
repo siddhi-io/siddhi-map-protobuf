@@ -47,11 +47,14 @@ public class GrpcConstants {
 
     public static final int PATH_SERVICE_NAME_POSITION = 0;
     public static final int PATH_METHOD_NAME_POSITION = 1;
+    public static final int REQUEST_CLASS_POSITION = 0;
+    public static final int RESPONSE_CLASS_POSITION = 1;
+
     public static final int PATH_SEQUENCE_NAME_POSITION = 2;
 
 
     public static final String CLASS_OPTION_HOLDER = "class";
-    public static final String BLOCKING_STUB_NAME = "BlockingStub";
+    public static final String STUB_NAME = "Stub";
     public static final String GRPC_PROTOCOL_NAME_UPPERCAMELCASE = "Grpc";
     public static final String DOLLAR_SIGN = "$";
     public static final String NEW_BUILDER_NAME = "newBuilder";
@@ -64,6 +67,7 @@ public class GrpcConstants {
     public static final String KEY_VALUES_SEPARATOR = "`,`";
     public static final String KEY_AND_VALUE_SEPARATOR = ":";
     public static final String BUILD_METHOD = "build";
+    public static final String METHOD_NAME = "Method";
 
 
     public static final String STRING_TYPE = "String";

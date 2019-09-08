@@ -37,12 +37,14 @@ import io.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getMethodName;
+import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getRPCmethodList;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceName;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
 
@@ -156,7 +158,7 @@ public class ProtobufSourceMapper extends SourceMapper {
     private Class messageObjectClass;
     private List<MappingPositionData> mappingPositionDataList;
     private int size;
-    private SiddhiAppContext siddhiAppContext;
+    private String siddhiAppName;
 
     /**
      * The initialization method for {@link SourceMapper}, which will be called before other methods and validate
@@ -175,66 +177,49 @@ public class ProtobufSourceMapper extends SourceMapper {
 
         mappingPositionDataList = new ArrayList<>();
         this.size = streamDefinition.getAttributeList().size();
-        this.siddhiAppContext = siddhiAppContext;
+        this.siddhiAppName = siddhiAppContext.getName();
         if (sourceType.equals(GrpcConstants.GRPC_SERVICE_SOURCE_NAME) && attributeMappingList.size() == 0) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + "no mapping found at @map, mapping " +
+            throw new SiddhiAppCreationException(siddhiAppName + "no mapping found at @map, mapping " +
                     "should be available to continue"); //grpc-service-source should have a mapping
         }
         String url = sourceOptionHolder.validateAndGetStaticValue(GrpcConstants.RECEIVER_URL);
         if (url == null) {
-            throw new SiddhiAppValidationException(siddhiAppContext.getName() + " Please provide 'receiver.url' in " +
+            throw new SiddhiAppValidationException(siddhiAppName + " Please provide 'receiver.url' in " +
                     "the source definition ");
         }
         URL aURL;
         try {
             aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
         } catch (MalformedURLException e) {
-            throw new SiddhiAppValidationException(siddhiAppContext.getName() + " : MalformedURLException. "
+            throw new SiddhiAppValidationException(siddhiAppName + " : MalformedURLException. "
                     + e.getMessage()); //todo update with grpc code
         }
         String methodReference = getMethodName(aURL.getPath());
-        String serviceReference = getServiceName(aURL.getPath()); //todo only get the full service name and change
-        // the name (reference)
-        String[] serviceReferenceArray = serviceReference.split("\\.");
-        String serviceName = serviceReferenceArray[serviceReferenceArray.length - 1];
+        String serviceReference = getServiceName(aURL.getPath());
         String userProvidedClassName = "";
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        List<String> rpcMethodNameList = new ArrayList<>();
         Object messageBuilderObject; // need builder to get all the fields in the message object
         try {
-            String blockingStubReference = serviceReference + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE
-                    + GrpcConstants.DOLLAR_SIGN + serviceName + GrpcConstants.BLOCKING_STUB_NAME;
-            Method[] methodsInBlockingStub = Class.forName(blockingStubReference).getMethods(); // the place where
-            // ClassNotFound Exception will be thrown
-            for (Method method : methodsInBlockingStub) {
-                if (method.getDeclaringClass().getName().equals(blockingStubReference)) { // check if the method belogs
-                    // to blocking stub, other methods that does not belongs to blocking stub are not rpc methods
-                    rpcMethodNameList.add(method.getName());
-                }
-                if (method.getName().equals(methodReference)) {
-                    if (sourceType.equalsIgnoreCase(GrpcConstants.GRPC_CALL_RESPONSE_SOURCE_NAME)) { // todo change
-                        // equals to igonore
-                        this.messageObjectClass = method.getReturnType(); // just getting the messageClass
-                    } else {
-                        this.messageObjectClass = method.getParameterTypes()[0];
-                    }
-                    break;
-                }
-            } // todo throw the error here, expected type and given type
-            if (messageObjectClass == null) {
-                throw new SiddhiAppCreationException(siddhiAppContext.getName() + ": 1. Invalid method name provided " +
-                        "in the " +
-                        "url," +
-                        " provided method name : '" + methodReference + "' expected one of these methods : " +
-                        rpcMethodNameList);
+            String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
+                    methodReference.substring(1);
+            Field methodDescriptor = Class.forName(serviceReference + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE)
+                    .getDeclaredField(GrpcConstants.GETTER + capitalizedFirstLetterMethodName +
+                            GrpcConstants.METHOD_NAME);
+            ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
+            if (sourceType.equalsIgnoreCase(GrpcConstants.GRPC_CALL_RESPONSE_SOURCE_NAME)) {
+                this.messageObjectClass = (Class) parameterizedType
+                        .getActualTypeArguments()[GrpcConstants.RESPONSE_CLASS_POSITION];
+            } else {
+                this.messageObjectClass = (Class) parameterizedType
+                        .getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
             }
             if (!userProvidedClassName.equals("")) {
                 if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { // only if sink is a grpc type, check for
                     // both user provided class name and the required class name
                     if (!this.messageObjectClass.getName().equals(userProvidedClassName)) {
-                        throw new SiddhiAppCreationException(siddhiAppContext.getName() +
+                        throw new SiddhiAppCreationException(siddhiAppName +
                                 " :provided class name does not match with the original mapping class, provided class" +
                                 " : "
                                 + userProvidedClassName + " , expected : " + messageObjectClass.getName());
@@ -244,14 +229,21 @@ public class ProtobufSourceMapper extends SourceMapper {
             Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME);
             messageBuilderObject = builderMethod.invoke(messageObjectClass);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + ": Invalid method name provided " +
+            throw new SiddhiAppCreationException(siddhiAppName + ": Invalid method name provided " +
                     "in the url," +
                     " provided method name : '" + methodReference + "' expected one of these methods : " +
-                    rpcMethodNameList, e);  // this error will be
+                    getRPCmethodList(serviceReference, siddhiAppName), e);  // this error will be
         } catch (ClassNotFoundException e) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + ": " +
+            throw new SiddhiAppCreationException(siddhiAppName + ": " +
                     "Invalid service name provided in url, provided service name : '" + serviceReference + "'", e);
             //todo
+        } catch (NoSuchFieldException e) {
+            //same error as NoSuchMethod', because field is getting from the method name
+            throw new SiddhiAppCreationException(siddhiAppName + ": Invalid method name provided " +
+                    "in the " +
+                    "url," +
+                    " provided method name : '" + methodReference + "' expected one of these methods : " +
+                    getRPCmethodList(serviceReference, siddhiAppName));
         }
         Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
         String protobufFieldsWithTypes = protobufFieldsWithTypes(fields);
@@ -272,10 +264,10 @@ public class ProtobufSourceMapper extends SourceMapper {
                     mappingPositionDataList.add(new MappingPositionData(i, getter));
                 } catch (NoSuchMethodException e) {
                     attributeName = attributeName.substring(0, 1).toLowerCase() + attributeName.substring(1);
-                    throw new SiddhiAppRuntimeException(this.siddhiAppContext.getName() + "Attribute name or type do " +
+                    throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
                             "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
                             " " + attributeType + "\". Expected one of these attributes " + protobufFieldsWithTypes +
-                            " " , e);
+                            " ", e);
                 }
             }
         } else {
@@ -296,7 +288,7 @@ public class ProtobufSourceMapper extends SourceMapper {
                     }
                     mappingPositionDataList.add(new MappingPositionData(position, getter));
                 } catch (NoSuchMethodException e) {
-                    throw new SiddhiAppRuntimeException(this.siddhiAppContext.getName() + "Attribute name or type do " +
+                    throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
                             "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
                             " " + attributeType + "\". Expected one of these attributes " + protobufFieldsWithTypes +
                             " " + e);
@@ -325,14 +317,13 @@ public class ProtobufSourceMapper extends SourceMapper {
      */
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
-        Object[] objectArray = new Object[this.size]; //todo stramDefiniton.getAttrList.getSize()  getdefinition size
-
+        Object[] objectArray = new Object[this.size];
         for (MappingPositionData mappingPositionData : mappingPositionDataList) {
             Object value;
             try {
                 value = mappingPositionData.getGetterMethod().invoke(eventObject);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new SiddhiAppRuntimeException(siddhiAppContext.getName() + "Unknown error occurred during " +
+                throw new SiddhiAppRuntimeException(siddhiAppName + "Unknown error occurred during " +
                         "runtime", e);
             }
             objectArray[mappingPositionData.getPosition()] = value;

@@ -17,11 +17,13 @@
  */
 package io.siddhi.extension.map.protobuf.utils;
 
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import io.siddhi.core.exception.SiddhiAppRuntimeException;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -159,6 +161,30 @@ public class ProtobufUtils {
                 variableNamesWithType.length() - 2));
         variableNamesWithType.append(" }");
         return variableNamesWithType.toString();
+    }
+
+    public static List<String> getRPCmethodList(String serviceReference, String siddhiAppName) { //require full
+        // serviceName
+        List<String> rpcMethodNameList = new ArrayList<>();
+        String[] serviceReferenceArray = serviceReference.split("\\.");
+        String serviceName = serviceReferenceArray[serviceReferenceArray.length - 1];
+        String stubReference = serviceReference + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE
+                + GrpcConstants.DOLLAR_SIGN + serviceName + GrpcConstants.STUB_NAME;
+        Method[] methodsInStub;
+        try {
+            methodsInStub = Class.forName(stubReference).getMethods(); //get all methods in stub Inner class
+        } catch (ClassNotFoundException e) {
+            throw new SiddhiAppCreationException(siddhiAppName + ": " +
+                    "Invalid service name provided in url, provided service name : '" + serviceName + "'", e);
+        }
+        // ClassNotFound Exception will be thrown
+        for (Method method : methodsInStub) {
+            if (method.getDeclaringClass().getName().equals(stubReference)) { // check if the method belongs
+                // to blocking stub, other methods that does not belongs to blocking stub are not rpc methods
+                rpcMethodNameList.add(method.getName());
+            }
+        }
+        return rpcMethodNameList;
     }
 
 
