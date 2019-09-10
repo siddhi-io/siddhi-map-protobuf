@@ -80,7 +80,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
         },
         examples = {
                 @Example(
-                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/package01.test." +
+                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/org.wso2.grpc.test." +
                                 "MyService/process', \n" +
                                 "@map(type='protobuf')) " +
                                 "define stream FooStream (stringValue string, intValue int,longValue long," +
@@ -92,7 +92,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                                 ""
                 ),
                 @Example(
-                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/package01.test." +
+                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/org.wso2.grpc.test." +
                                 "MyService/process', \n" +
                                 "@map(type='protobuf', " +
                                 "@attributes(a = 'stringValue', b = 'intValue', c = 'longValue',d = 'booleanValue'," +
@@ -101,49 +101,24 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                         description = "" +
                                 "Above definition will convert the protobuf messages that are received to this" +
                                 " source into siddhi events. since there's a mapping available for the stream, " +
-                                "protobuf message object will be map like this \n" +
-                                "'stringValue' of the protobuf message will be assign to the 'a' attribute of the " +
+                                "protobuf message object will be map like this, \n" +
+                                "-'stringValue' of the protobuf message will be assign to the 'a' attribute of the " +
                                 "stream \n" +
-                                "'intValue' of the protobuf message will be assign to the 'b' attribute of the stream" +
-                                " \n" +
-                                "'longValue' of the protobuf message will be assign to the 'c' attribute of the " +
+                                "- 'intValue' of the protobuf message will be assign to the 'b' attribute of the " +
                                 "stream \n" +
-                                "'booleanValue' of the protobuf message will be assign to the 'd' attribute of the " +
+                                "- 'longValue' of the protobuf message will be assign to the 'c' attribute of the " +
                                 "stream \n" +
-                                "'floatValue' of the protobuf message will be assign to the 'e' attribute of the " +
+                                "- 'booleanValue' of the protobuf message will be assign to the 'd' attribute of the " +
                                 "stream \n" +
-                                "'doubleValue' of the protobuf message will be assign to the 'f' attribute of the " +
+                                "- 'floatValue' of the protobuf message will be assign to the 'e' attribute of the " +
                                 "stream \n" +
-                                ""
-                ),
-                @Example(
-                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/package01.test." +
-                                "MyService/process', \n" +
-                                "@map(type='protobuf', " +
-                                "@attributes(a = 'stringValue', b = 'intValue', c = 'longValue',d = 'booleanValue'," +
-                                "' e = floatValue', f ='doubleValue'))) \n" +
-                                "define stream FooStream (a string ,c long,b int, d bool,e float,f double);",
-                        description = "" +
-                                "Above definition will convert the protobuf messages that are received to this" +
-                                " source into siddhi events. since there's a mapping available for the stream, " +
-                                "protobuf message object will be map like this \n" +
-                                "'stringValue' of the protobuf message will be assign to the 'a' attribute of the " +
-                                "stream \n" +
-                                "'intValue' of the protobuf message will be assign to the 'b' attribute of the stream" +
-                                " \n" +
-                                "'longValue' of the protobuf message will be assign to the 'c' attribute of the " +
-                                "stream \n" +
-                                "'booleanValue' of the protobuf message will be assign to the 'd' attribute of the " +
-                                "stream \n" +
-                                "'floatValue' of the protobuf message will be assign to the 'e' attribute of the " +
-                                "stream \n" +
-                                "'doubleValue' of the protobuf message will be assign to the 'f' attribute of the " +
+                                "- 'doubleValue' of the protobuf message will be assign to the 'f' attribute of the " +
                                 "stream \n" +
                                 ""
                 ),
                 @Example(
-                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/package01.test." +
-                                "MyService/process', \n" +
+                        syntax = "source(type='grpc', receiver.url = 'grpc://localhost: 2000/org.wso2.grpc.test." +
+                                "MyService/testMap', \n" +
                                 "@map(type='protobuf')) \n" +
                                 "define stream FooStream (stringValue string ,intValue int,map object);",
                         description = "" +
