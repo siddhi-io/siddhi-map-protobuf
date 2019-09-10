@@ -22,60 +22,30 @@ package io.siddhi.extension.map.protobuf.utils;
  */
 public class GrpcConstants {
 
-    public static final String PORT_HOST_SEPARATOR = ":";
     public static final String PUBLISHER_URL = "publisher.url";
     public static final String RECEIVER_URL = "receiver.url";
     public static final String PORT_SERVICE_SEPARATOR = "/";
-    public static final String SINK_ID = "sink.id";
-    public static final String DEFAULT_METHOD_NAME_WITH_RESPONSE = "process";
-    public static final String DEFAULT_METHOD_NAME_WITHOUT_RESPONSE = "consume";
     public static final String EMPTY_STRING = "";
-    public static final String STRING_SPACE = " ";
-    public static final String STRING_COMMA = ",";
-    public static final String STRING_INVERTED_COMMA = "'";
     public static final String GRPC_PROTOCOL_NAME = "grpc";
     public static final String DUMMY_PROTOCOL_NAME = "http";
-    public static final String DEFAULT_SERVICE_NAME = "EventService";
-    public static final String SINK_TYPE_OPTION = "type";
-    public static final String GRPC_CALL_SINK_NAME = "grpc-call";
     public static final String GRPC_SERVICE_RESPONSE_SINK_NAME = "grpc-service-response";
     public static final String GRPC_CALL_RESPONSE_SOURCE_NAME = "grpc-call-response";
     public static final String GRPC_SERVICE_SOURCE_NAME = "grpc-service-source";
-    public static final String SOURCE_ID = "source.id";
-    public static final String MESSAGE_ID = "message.id";
-    public static final String HEADERS = "headers";
-
-    public static final int PATH_SERVICE_NAME_POSITION = 0;
-    public static final int PATH_METHOD_NAME_POSITION = 1;
-    public static final int REQUEST_CLASS_POSITION = 0;
-    public static final int RESPONSE_CLASS_POSITION = 1;
-
-    public static final int PATH_SEQUENCE_NAME_POSITION = 2;
-
-
     public static final String CLASS_OPTION_HOLDER = "class";
     public static final String STUB_NAME = "Stub";
     public static final String GRPC_PROTOCOL_NAME_UPPERCAMELCASE = "Grpc";
     public static final String DOLLAR_SIGN = "$";
     public static final String NEW_BUILDER_NAME = "newBuilder";
-    public static final String MESSAGECLASS_DEFAULT_INSTANCE_NAME = "getDefaultInstance";
     public static final String SETTER = "set";
     public static final String GETTER = "get";
     public static final String MAP_NAME = "Map";
-    public static final String PUTALL_METHOD = "putAll";
-    public static final String PUT_METHOD = "put";
-    public static final String KEY_VALUES_SEPARATOR = "`,`";
-    public static final String KEY_AND_VALUE_SEPARATOR = ":";
     public static final String BUILD_METHOD = "build";
+    public static final String PUTALL_METHOD = "putAll";
     public static final String METHOD_NAME = "Method";
-
-
-    public static final String STRING_TYPE = "String";
-    public static final String INTEGER_TYPE = "Integer";
-    public static final String DOUBLE_TYPE = "Double";
-    public static final String FLOAT_TYPE = "Float";
-    public static final String LONG_TYPE = "Long";
-    public static final String BOOLEAN_TYPE = "Boolean";
+    public static final int PATH_SERVICE_NAME_POSITION = 0;
+    public static final int PATH_METHOD_NAME_POSITION = 1;
+    public static final int REQUEST_CLASS_POSITION = 0;
+    public static final int RESPONSE_CLASS_POSITION = 1;
 
 
 }

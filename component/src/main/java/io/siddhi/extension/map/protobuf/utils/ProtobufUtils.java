@@ -60,23 +60,6 @@ public class ProtobufUtils {
     }
 
 
-    public static Class getDataType(Object data) {
-        if (data.getClass() == String.class) {
-            return String.class;
-        } else if (data.getClass() == Integer.class) {
-            return Integer.TYPE;
-        } else if (data.getClass() == Double.class) {
-            return Double.TYPE;
-        } else if (data.getClass() == Long.class) {
-            return Long.TYPE;
-        } else if (data.getClass() == Float.class) {
-            return Float.TYPE;
-        } else if (data.getClass() == Boolean.class) {
-            return Boolean.TYPE;
-        }
-        throw new SiddhiAppRuntimeException("Unknown Data Type");
-    } // TODO: 8/30/19 to be removed
-
     public static Class getDataType(Attribute.Type type) {
         if (type == Attribute.Type.STRING) {
             return String.class;
@@ -93,51 +76,6 @@ public class ProtobufUtils {
         }
         throw new SiddhiAppRuntimeException("Unknown Data Type");
     }
-
-    public static Object castValue(Class dataType, String data, boolean isValue) {
-        String valueType = null; //for the error msg
-        try {
-            if (dataType == String.class) {
-                valueType = GrpcConstants.STRING_TYPE;
-                return data;
-            } else if (dataType == Integer.TYPE) {
-                valueType = GrpcConstants.INTEGER_TYPE;
-                data = data.replaceAll(",", ""); //when comma is available in the object type
-                return Integer.parseInt(data);
-
-            } else if (dataType == Long.TYPE) {
-                valueType = GrpcConstants.LONG_TYPE;
-                data = data.replaceAll(",", "");
-                return Long.parseLong(data);
-
-
-                //floating point types and boolean
-            } else if (dataType == Double.TYPE) {
-                if (isValue) {
-                    valueType = GrpcConstants.DOUBLE_TYPE;
-                    data = data.replaceAll(",", "");
-                    return Double.parseDouble(data);
-                }
-                //todo :: should I throw an new error, that saying cannot have floating points as keys???
-            } else if (dataType == Float.TYPE) {
-                if (isValue) {
-                    valueType = GrpcConstants.FLOAT_TYPE;
-                    data = data.replaceAll(",", "");
-                    return Float.parseFloat(data);
-                }
-            } else if (dataType == Boolean.TYPE) {
-                if (isValue) {
-                    valueType = GrpcConstants.BOOLEAN_TYPE;
-//                    data = data.replaceAll(",", "");
-                    return Boolean.parseBoolean(data);
-                }
-            }
-        } catch (NumberFormatException e) {
-            throw new SiddhiAppRuntimeException("Expected '" + valueType + "' but got an unknown value Type :" + data);
-        }
-
-        throw new SiddhiAppRuntimeException("Unknown Data Type");
-    } // TODO: 8/30/19  to be removed
 
     public static  String protobufFieldsWithTypes(Field[] protobufFields) {
         StringBuilder variableNamesWithType = new StringBuilder("{ ");
