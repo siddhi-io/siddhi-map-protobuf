@@ -37,6 +37,14 @@
         <module>component</module>
     </modules>
 
+    <scm>
+        <connection>scm:git:https://github.com/siddhi-io/siddhi-map-protobuf.git</connection>
+        <url>https://github.com/siddhi-io/siddhi-map-protobuf.git</url>
+        <developerConnection>scm:git:https://github.com/siddhi-io/siddhi-map-protobuf.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -204,6 +212,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
