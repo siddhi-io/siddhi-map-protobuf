@@ -18,7 +18,7 @@
 package io.siddhi.extension.map.protobuf.utils;
 
 /**
- * Class to hold the constants used by gRPC sources and sinks
+ * Class to hold the constants used by protobuf source and sink mapper
  */
 public class GrpcConstants {
 
@@ -46,6 +46,8 @@ public class GrpcConstants {
     public static final int PATH_METHOD_NAME_POSITION = 1;
     public static final int REQUEST_CLASS_POSITION = 0;
     public static final int RESPONSE_CLASS_POSITION = 1;
+    private GrpcConstants() {
+    }
 
 
 }

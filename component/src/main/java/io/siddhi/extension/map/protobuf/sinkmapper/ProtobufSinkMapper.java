@@ -34,6 +34,7 @@ import io.siddhi.extension.map.protobuf.utils.ProtobufUtils;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.definition.StreamDefinition;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -50,9 +51,8 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getRPCmethodL
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceName;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
 
-
 /**
- * Mapper class to convert a Siddhi message to a Protobuf(Protocol Buffers)  message object
+ * Protobuf SinkMapper converts siddhi events in to protobuf message objects.
  */
 @Extension(
         name = "protobuf",
@@ -76,8 +76,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                 @Parameter(name = "class",
                         description = "" +
                                 "This specifies the class name of the protobuf message class, If sink type is grpc " +
-                                "then" +
-                                " it's not necessary to provide this parameter.",
+                                "then it's not necessary to provide this parameter.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = " "),
@@ -88,12 +87,9 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                                 ".MyService/process \n" +
                                 "@map(type='protobuf')) \n" +
                                 "define stream BarStream (stringValue string, intValue int,longValue long," +
-                                "booleanValue bool," +
-                                "floatValue float,doubleValue double)",
+                                "booleanValue bool,floatValue float,doubleValue double)",
                         description = "Above definition will map BarStream values into the protobuf message type of " +
-                                "the " +
-                                " 'process' method in 'MyService' service" +
-                                ""),
+                                "the 'process' method in 'MyService' service"),
 
                 @Example(
                         syntax = "@sink(type='grpc', url = 'grpc://localhost:2000/org.wso2.grpc.test" +
@@ -121,287 +117,250 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
 
                         description = "The above definition will map BarStream values to request message type of the " +
                                 "'testMap' method in 'MyService' service and since there is an object data type is in" +
-                                " " +
                                 "the stream(map object) , mapper will assume that 'map' is an instance of  " +
                                 "'java.util.Map' class, otherwise it will throws and error. \n" +
                                 ""
+
                 )
         }
 )
 
 public class ProtobufSinkMapper extends SinkMapper {
-
-    private Class builder;
-    private Class messageObjectClass;
+    // TODO: 9/11/19 Add examples
+    private static final Logger log = Logger.getLogger(ProtobufSinkMapper.class);
+//    private Class builder;
     private Object messageBuilderObject;
     private List<MappingPositionData> mappingPositionDataList;
     private String siddhiAppName;
 
-
-    /**
-     * Returns a list of supported dynamic options (that means for each event value of the option can change) by
-     * the transport
-     *
-     * @return the list of supported dynamic option keys
-     */
     @Override
     public String[] getSupportedDynamicOptions() {
         return new String[0];
     }
 
-    /**
-     * The initialization method for {@link SinkMapper}, which will be called before other methods and validate
-     * the all configuration and getting the initial values.
-     *
-     * @param streamDefinition containing stream definition bind to the {@link SinkMapper}
-     * @param optionHolder     Option holder containing static and dynamic configuration related
-     *                         to the {@link SinkMapper}
-     * @param map              Unmapped payload for reference
-     * @param configReader     to read the sink related system configuration.
-     * @param siddhiAppContext the context of the {@link io.siddhi.query.api.SiddhiApp} used to
-     *                         get siddhi related utilty functions.
-     */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, Map<String, TemplateBuilder> map,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        String[] attributeNameArray = streamDefinition.getAttributeNameArray();
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, Map<String, TemplateBuilder>
+            templateBuilderMap, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.siddhiAppName = siddhiAppContext.getName();
-        if (sinkType.equals(GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME) && map.size() == 0) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + "no mapping found at @map, mapping " +
-                    "should be available to continue"); //grpc-service-source should have a mapping
+        if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType) // TODO: 9/11/19 skip this
+                && templateBuilderMap.size() == 0) { // TODO: 9/11/19 change the message
+            throw new SiddhiAppCreationException(" No mapping found at @Map, mapping is required to continue " +
+                    "for Siddhi App " + siddhiAppName); //grpc-service-response should have a mapping
         }
-        String url = sinkOptionHolder.validateAndGetStaticValue(GrpcConstants.PUBLISHER_URL);
-        URL aURL;
+        mappingPositionDataList = new ArrayList<>();
+        String url = null;
         try {
-            aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
-        } catch (MalformedURLException e) {
-            throw new SiddhiAppValidationException(siddhiAppContext.getName() + ": MalformedURLException. "
-                    + e.getMessage());
+            url = sinkOptionHolder.validateAndGetStaticValue(GrpcConstants.PUBLISHER_URL);
+        } catch (SiddhiAppValidationException ignored) {
+            log.info("Url is not provided, getting the class name from the 'class' parameter");
         }
-        String methodReference = getMethodName(aURL.getPath());
-        String serviceReference = getServiceName(aURL.getPath());
-        //if user provides the class parameter inside the @map
-        String userProvidedClassName = "";
+        String userProvidedClassName = null; //todo change into null. - done
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        try {
-            String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
-                    methodReference.substring(1);
-            Field methodDescriptor = Class.forName(serviceReference + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE)
-                    .getDeclaredField(GrpcConstants.GETTER + capitalizedFirstLetterMethodName +
-                            GrpcConstants.METHOD_NAME);
-            ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
-            if (sinkType.equalsIgnoreCase(GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME)) {
-                this.messageObjectClass = (Class) parameterizedType.
-                        getActualTypeArguments()[GrpcConstants.RESPONSE_CLASS_POSITION];
-            } else {
-                this.messageObjectClass = (Class) parameterizedType.
-                        getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
+        Class messageObjectClass;
+        if (url != null) {
+            URL aURL;
+            try { // TODO: 9/11/19 Check for grpc - done
+                if (!url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                    throw new SiddhiAppValidationException(siddhiAppContext.getName() + " : The url must " +
+                            "begin with \"" + GrpcConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
+                }
+                aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
+            } catch (MalformedURLException e) {
+                throw new SiddhiAppValidationException(siddhiAppContext.getName() + ": Error in URL format. Expected " +
+                        "format is `grpc://0.0.0.0:9763/<serviceName>/<methodName>` but the provided url is " + url + "," + e.getMessage()
+                        , e); // TODO: 9/11/19 add e.getmessage() - done
             }
-            if (!userProvidedClassName.equals("")) {
-                if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { // only if sink is a grpc type, check for
-                    // both user provided class name and the required class name
-                    if (!this.messageObjectClass.getName().equals(userProvidedClassName)) {
-                        throw new SiddhiAppCreationException(siddhiAppContext.getName() +
-                                " :provided class name does not match with the original mapping class, provided class" +
-                                " : "
-                                + userProvidedClassName + " , expected : " + messageObjectClass.getName());
+            String methodReference = getMethodName(aURL.getPath());
+            String fullQualifiedServiceReference = getServiceName(aURL.getPath());
+            //if user provides the class parameter inside the @templateBuilderMap
+            try {
+                String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
+                        methodReference.substring(1);
+                Field methodDescriptor = Class.forName(fullQualifiedServiceReference
+                        + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
+                        (GrpcConstants.GETTER + capitalizedFirstLetterMethodName + GrpcConstants.METHOD_NAME);
+                ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
+                if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)) {
+                    messageObjectClass = (Class) parameterizedType.
+                            getActualTypeArguments()[GrpcConstants.RESPONSE_CLASS_POSITION];
+                } else {
+                    messageObjectClass = (Class) parameterizedType.
+                            getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
+                }
+                if (userProvidedClassName != null) { //todo change the testcases
+                    if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { // only if sink is a grpc type, check for
+                        // both user provided class name and the required class name
+                        if (!messageObjectClass.getName().equals(userProvidedClassName)) {
+                            throw new SiddhiAppCreationException(siddhiAppContext.getName() +
+                                    " : provided class name does not match with the original mapping class, provided " +
+                                    "class : " + userProvidedClassName + " , expected : " + messageObjectClass.getName());
+                        }
                     }
                 }
+                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                // create an builder object of message class
+                messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
+                throw new SiddhiAppCreationException(siddhiAppName + ": Invalid method name provided " +
+                        "in the url, provided method name : '" + methodReference + "' expected one of these methods :" +
+                        " " +
+                        getRPCmethodList(fullQualifiedServiceReference, siddhiAppName) + "," + e.getMessage(), e);//
+                // TODO: 9/11/19 pass e -done
+            } catch (ClassNotFoundException e) {
+                throw new SiddhiAppCreationException(siddhiAppName + " : Invalid service name provided in" +
+                        " url, provided service name : '" + fullQualifiedServiceReference + "'," + e.getMessage(), e);
             }
-            // create and instantiate the object
-            Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
-            // create an builder object of message class
-            this.builder = builderMethod.getReturnType();
-            messageBuilderObject = builderMethod.invoke(this.messageObjectClass);
 
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + ": Invalid method name provided " +
-                    "in the url," +
-                    " provided method name : '" + methodReference + "' expected one of these methods : " +
-                    getRPCmethodList(serviceReference, siddhiAppName), e);  // this error will be
-            // thrown if invalid method name is provided.
-        } catch (ClassNotFoundException e) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + ": " +
-                    "Invalid service name provided in url, provided service name : '" + serviceReference + "'", e);
-        } catch (NoSuchFieldException e) {
-            throw new SiddhiAppCreationException(siddhiAppContext.getName() + ": Invalid method name provided " +
-                    "in the " +
-                    "url," +
-                    " provided method name : '" + methodReference + "' expected one of these methods : " +
-                    getRPCmethodList(serviceReference, siddhiAppName), e);
+        } else {
+            try {
+                messageObjectClass = Class.forName(userProvidedClassName);
+                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                // create an builder object of message class
+                messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new SiddhiAppCreationException(siddhiAppName + " : Invalid class name provided in the 'class'" +
+                        " parameter, provided class name: " + userProvidedClassName);
+            }
         }
+        initializeSetterMethods(streamDefinition, templateBuilderMap);
+    }
 
-        Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
-        String protobufFieldsWithTypes = protobufFieldsWithTypes(fields);
-        mappingPositionDataList = new ArrayList<>();
-        if (map == null) {
-            for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
-                Attribute.Type attributeType = streamDefinition.getAttributeList().get(i).getType(); //get attribute
-                // type
-                String attributeName = attributeNameArray[i]; //get attribute name
-                attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-                Method setterMethod;
-                try {
+    private void initializeSetterMethods(StreamDefinition streamDefinition, Map<String, TemplateBuilder>
+            templateBuilderMap) {
+        Attribute.Type attributeType = null;
+        String attributeName = null;
+        try {
+            if (templateBuilderMap == null) {
+                for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
+                    attributeType = streamDefinition.getAttributeList().get(i).getType(); //get attribute
+                    // type
+                    attributeName = streamDefinition.getAttributeNameArray()[i]; //get attribute name
+                    attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+                    Method setterMethod;
+
                     if (attributeType == Attribute.Type.OBJECT) {
-                        setterMethod = builder.getDeclaredMethod(GrpcConstants.PUTALL_METHOD + attributeName,
+                        setterMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.PUTALL_METHOD + attributeName,
                                 java.util.Map.class);
                     } else {
-                        setterMethod = builder.getDeclaredMethod(GrpcConstants.SETTER + attributeName,
+                        setterMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + attributeName,
                                 ProtobufUtils.getDataType(attributeType));
                     }
                     mappingPositionDataList.add(new MappingPositionData(setterMethod, i));
-                } catch (NoSuchMethodException e) {
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
-                            "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
-                            " " + attributeType + "\". Expected one of these attributes " + protobufFieldsWithTypes +
-                            " " + e);
                 }
-
-            }
-        } else {
-            List<String> mapKeySetList = new ArrayList<>(map.keySet()); //convert keyset to a list, to get keys by index
-            for (int i = 0; i < map.size(); i++) {
-                String attributeName = mapKeySetList.get(i); //get attribute name
-                Attribute.Type attributeType = map.get(attributeName).getType();
-                attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-                Method setterMethod;
-                try {
+            } else {
+                List<String> mapKeySetList = new ArrayList<>(templateBuilderMap.keySet()); //convert keyset to a
+                // list, to get keys by index
+                for (int i = 0; i < templateBuilderMap.size(); i++) {
+                    attributeName = mapKeySetList.get(i); //get attribute name
+                    attributeType = templateBuilderMap.get(attributeName).getType();
+                    attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+                    Method setterMethod;
                     if (attributeType == Attribute.Type.OBJECT) {
-                        setterMethod = builder.getDeclaredMethod(GrpcConstants.PUTALL_METHOD + attributeName,
+                        setterMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.PUTALL_METHOD + attributeName,
                                 java.util.Map.class);
                     } else {
-                        setterMethod = builder.getDeclaredMethod(GrpcConstants.SETTER + attributeName,
+                        setterMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + attributeName,
                                 ProtobufUtils.getDataType(attributeType));
                     }
-                    mappingPositionDataList.add(new MappingPositionData(setterMethod, map.get(mapKeySetList.get(i))));
-                } catch (NoSuchMethodException e) {
-                    String attributeTypeName = attributeType.name(); //to change object to map
-                    if (attributeType == Attribute.Type.OBJECT) {
-                        attributeTypeName = "Map";
-                    }
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
-                            "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
-                            " " + attributeTypeName + "\". Expected on of these attributes " + protobufFieldsWithTypes +
-                            " ", e);
+                    mappingPositionDataList.add(new MappingPositionDataWithTemplateBuilder(setterMethod,
+                            templateBuilderMap.get(mapKeySetList.get(i))));
                 }
             }
+        } catch (NoSuchMethodException e) {
+            Field[] fields = messageBuilderObject.getClass().getDeclaredFields(); //get all available
+            // attributes
+            String attributeTypeName = attributeType.name(); // this will not throw null pointer exception
+            if (attributeType == Attribute.Type.OBJECT) {
+                attributeTypeName = "Map";
+            }
+            throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
+                    "not match with protobuf variable or type. provided attribute \"'" + attributeName +
+                    "' :" +
+                    " " + attributeTypeName + "\". Expected one of these attributes " +
+                    protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
         }
-
     }
 
-
-    /**
-     * Returns the list of classes which this sink can consume.
-     * Based on the type of the sink, it may be limited to being able to publish specific type of classes.
-     * For example, a {@link SinkMapper} of type event can convert to CSV file objects of type String or byte.
-     *
-     * @return array of supported classes , if extension can support of any types of classes then return empty array .
-     */
     @Override
     public Class[] getOutputEventClasses() {
         return new Class[]{GeneratedMessageV3.class};
     }
 
-    /**
-     * Method to map the events and send them to {@link SinkListener} for publishing
-     *
-     * @param events       {@link Event}s that need to be mapped
-     * @param optionHolder Option holder containing static and dynamic options related to the mapper
-     * @param map          To build the message payload based on the given template
-     * @param sinkListener {@link SinkListener} that will be called with the mapped events
-     */
     @Override
-    public void mapAndSend(Event[] events, OptionHolder optionHolder, Map<String, TemplateBuilder> map,
+    public void mapAndSend(Event[] events, OptionHolder optionHolder, Map<String, TemplateBuilder> templateBuilderMap,
                            SinkListener sinkListener) {
         for (Event event : events) {
-            mapAndSend(event, optionHolder, map, sinkListener);
+            mapAndSend(event, optionHolder, templateBuilderMap, sinkListener);
         }
     }
 
-    /**
-     * Method to map the event and send it to {@link SinkListener} for publishing
-     *
-     * @param event        {@link Event} that need to be mapped
-     * @param optionHolder Option holder containing static and dynamic options related to the mapper
-     * @param map          To build the message payload based on the given template
-     * @param sinkListener {@link SinkListener} that will be called with the mapped event
-     */
     @Override
-    public void mapAndSend(Event event, OptionHolder optionHolder, Map<String, TemplateBuilder> map,
+    public void mapAndSend(Event event, OptionHolder optionHolder, Map<String, TemplateBuilder> templateBuilderMap,
                            SinkListener sinkListener) {
         //todo error and just save the name
-        if (map != null) { // if @payload available data will be getting from the Template builder
-            for (int i = 0; i < mappingPositionDataList.size(); i++) {
-                MappingPositionData mappingPositionData = this.mappingPositionDataList.get(i);
-                Object data = mappingPositionData.getTemplateBuilder().build(event); // need to throw exception
-                try {
-                    mappingPositionData.getMessageObjectSetterMethod().invoke(messageBuilderObject, data);
-                } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-                    String nameOfExpectedClass =
-                            mappingPositionData.getMessageObjectSetterMethod().getParameterTypes()[0].getName();
-                    String nameOfFoundClass = data.getClass().getName();
-                    String[] foundClassnameArray = nameOfFoundClass.split("\\.");
-                    nameOfFoundClass = foundClassnameArray[foundClassnameArray.length - 1]; // to get the last name
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + " : Data type do not match. " +
-                            "Expected data type : '" + nameOfExpectedClass + "' found : '" + nameOfFoundClass + "'", e);
-                }
+        for (MappingPositionData mappingPositionData : mappingPositionDataList) {
+            Object data = mappingPositionData.getData(event);
+            try {
+                mappingPositionData.getMessageObjectSetterMethod().invoke(messageBuilderObject, data);
+            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+                String nameOfExpectedClass =
+                        mappingPositionData.getMessageObjectSetterMethod().getParameterTypes()[0].getName();
+                String nameOfFoundClass = data.getClass().getName();
+                String[] foundClassnameArray = nameOfFoundClass.split("\\.");
+                nameOfFoundClass = foundClassnameArray[foundClassnameArray.length - 1]; // to get the last name
+                throw new SiddhiAppRuntimeException(this.siddhiAppName + " : Data type do not match. " +
+                        "Expected data type : '" + nameOfExpectedClass + "' found : '" + nameOfFoundClass + "'," +
+                        e.getMessage(), e);
             }
-        } else {
-            for (int i = 0; i < mappingPositionDataList.size(); i++) {
-                MappingPositionData mappingPositionData = mappingPositionDataList.get(i);
-                Object data = event.getData(mappingPositionData.getPosition());
-                try {
-                    mappingPositionData.getMessageObjectSetterMethod().invoke(messageBuilderObject, data);
-                } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-                    String nameOfExpectedClass =
-                            mappingPositionData.getMessageObjectSetterMethod().getParameterTypes()[0].getName();
-                    String nameOfFoundClass = data.getClass().getName();
-                    String[] foundClassnameArray = nameOfFoundClass.split("\\.");
-                    nameOfFoundClass = foundClassnameArray[foundClassnameArray.length - 1]; // to get the last name
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + " : Data type do not match. " +
-                            "Expected data type : '" + nameOfExpectedClass + "' found : '" + nameOfFoundClass + "'", e);
-                }
-            }
+
         }
         try {
-            Method buildMethod = builder.getDeclaredMethod(GrpcConstants.BUILD_METHOD, null);
+            Method buildMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.BUILD_METHOD, null);
             Object messageObject = buildMethod.invoke(messageBuilderObject); //get the message object by invoking
             // build() method
             sinkListener.publish(messageObject);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new SiddhiAppRuntimeException(this.siddhiAppName + " : Error while creating the message " +
-                    "object", e);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+            // will not throw any error, all possible exceptions are handled in the init()
         }
     }
 
-
     private static class MappingPositionData {
         private Method messageObjectSetterMethod;
-        private TemplateBuilder templateBuilder;
         private int position; //this attribute can be removed
+        // TODO: 9/11/19 change the implementation, create two seperate classes
 
         private MappingPositionData(Method messageObjectSetterMethod, int position) {
             this.messageObjectSetterMethod = messageObjectSetterMethod;
             this.position = position; //if mapping is not available
         }
 
-        private MappingPositionData(Method messageObjectSetterMethod, TemplateBuilder templateBuilder) {
+        private MappingPositionData(Method messageObjectSetterMethod) {
             this.messageObjectSetterMethod = messageObjectSetterMethod;
-            this.templateBuilder = templateBuilder;
         }
 
         private Method getMessageObjectSetterMethod() {
             return messageObjectSetterMethod;
         }
 
-        private TemplateBuilder getTemplateBuilder() {
-            return templateBuilder;
+        protected Object getData(Event event) {
+            return event.getData(position);
+        }
+    }
+
+    private static class MappingPositionDataWithTemplateBuilder extends MappingPositionData {
+        private TemplateBuilder templateBuilder;
+
+        private MappingPositionDataWithTemplateBuilder(Method messageObjectSetterMethod,
+                                                       TemplateBuilder templateBuilder) {
+            super(messageObjectSetterMethod);
+            this.templateBuilder = templateBuilder;
         }
 
-        private int getPosition() {
-            return position;
+        @Override
+        protected Object getData(Event event) {
+            return templateBuilder.build(event);
         }
     }
 }

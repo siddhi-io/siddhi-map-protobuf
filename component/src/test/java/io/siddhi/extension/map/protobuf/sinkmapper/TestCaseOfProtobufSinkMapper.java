@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCaseOfProtobufSinkMapper {
     private static final Logger log = Logger.getLogger(TestCaseOfProtobufSinkMapper.class);
-//    private final int waitTime = 2000;
+    //    private final int waitTime = 2000;
 //    private final int timeout = 30000;
     private AtomicInteger count = new AtomicInteger();
 
@@ -104,6 +104,7 @@ public class TestCaseOfProtobufSinkMapper {
             public void onMessage(Object o) {
                 AssertJUnit.assertEquals(Request.class, o.getClass());
             }
+
             @Override
             public String getTopic() {
                 return "test01";
@@ -243,6 +244,7 @@ public class TestCaseOfProtobufSinkMapper {
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
+                log.info("Request :" + o);
                 AssertJUnit.assertEquals(RequestWithMap.class, o.getClass());
 
             }
@@ -279,6 +281,57 @@ public class TestCaseOfProtobufSinkMapper {
         Object[] data1 = {"Test 01", 60000, map1};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
+        InMemoryBroker.unsubscribe(subscriber);
+    }
+
+    @Test
+    public void protobuSinkMapperTestCaseWithoutPublisherURL() throws InterruptedException {
+        log.info("ProtobufSinkMapperTestCase 1");
+
+        InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object o) {
+                log.info("Request :\n" + o);
+                AssertJUnit.assertEquals(Request.class, o.getClass());
+            }
+
+            @Override
+            public String getTopic() {
+                return "test01";
+            }
+        };
+
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriber);
+        String streams = "" +
+                "@App:name('TestSiddhiApp1')" +
+                "define stream FooStream (stringValue string, intValue int,longValue long,booleanValue bool," +
+                "floatValue float,doubleValue double); " +
+                "@sink(type='inMemory', topic='test01'," +
+                "@map(type='protobuf', class='org.wso2.grpc.test.Request')) " +
+                "define stream BarStream (stringValue string, intValue int,longValue long,booleanValue bool," +
+                "floatValue float,doubleValue double); ";
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(toMap(events));
+            }
+        });
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.start();
+        Object[] data1 = {"Test 01", 60, 10000L, true, 522.7586f, 34.5668};
+        stockStream.send(data1);
+        siddhiAppRuntime.shutdown();
+        //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);
     }
 }

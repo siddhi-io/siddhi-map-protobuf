@@ -49,9 +49,8 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceNam
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
 
 /**
- * This is a sample class-level comment, explaining what the extension class does.
+ * Protobuf SinkMapper converts protobuf message objects in to siddhi events.
  */
-
 @Extension(
         name = "protobuf",
         namespace = "sourceMapper",
@@ -72,8 +71,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                 @Parameter(name = "class",
                         description = "" +
                                 "This specifies the class name of the protobuf message class, If sink type is grpc " +
-                                "then" +
-                                " it's not necessary to provide this field.",
+                                "then it's not necessary to provide this field.",
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = " "),
@@ -84,8 +82,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                                 "MyService/process', \n" +
                                 "@map(type='protobuf')) " +
                                 "define stream FooStream (stringValue string, intValue int,longValue long," +
-                                "booleanValue bool," +
-                                "floatValue float,doubleValue double); ",
+                                "booleanValue bool,floatValue float,doubleValue double); ",
                         description = "" +
                                 "Above definition will convert the protobuf messages that are received to this" +
                                 " source into siddhi events." +
@@ -138,16 +135,6 @@ public class ProtobufSourceMapper extends SourceMapper {
     private int size;
     private String siddhiAppName;
 
-    /**
-     * The initialization method for {@link SourceMapper}, which will be called before other methods and validate
-     * the all configuration and getting the initial values.
-     *
-     * @param streamDefinition     Associated output stream definition
-     * @param optionHolder         Option holder containing static configuration related to the {@link SourceMapper}
-     * @param attributeMappingList Custom attribute mapping for source-mapping
-     * @param configReader         to read the {@link SourceMapper} related system configuration.
-     * @param siddhiAppContext     the context of the {@link io.siddhi.query.api.SiddhiApp} used to get siddhi
-     */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
                      List<AttributeMapping> attributeMappingList, ConfigReader configReader,
@@ -155,10 +142,10 @@ public class ProtobufSourceMapper extends SourceMapper {
 
         mappingPositionDataList = new ArrayList<>();
         this.size = streamDefinition.getAttributeList().size();
-        this.siddhiAppName = siddhiAppContext.getName();
-        if (sourceType.equals(GrpcConstants.GRPC_SERVICE_SOURCE_NAME) && attributeMappingList.size() == 0) {
-            throw new SiddhiAppCreationException(siddhiAppName + "no mapping found at @map, mapping " +
-                    "should be available to continue"); //grpc-service-source should have a mapping
+        this.siddhiAppName = siddhiAppContext.getName(); // TODO: 9/11/19
+        if (GrpcConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType) && attributeMappingList.size() == 0) {
+            throw new SiddhiAppCreationException("no mapping found at @Map, mapping should be available to continue  " +
+                    "for Siddhi App " + siddhiAppName); //grpc-service-source should have a mapping
         }
         String url = sourceOptionHolder.validateAndGetStaticValue(GrpcConstants.RECEIVER_URL);
         if (url == null) {
@@ -169,59 +156,56 @@ public class ProtobufSourceMapper extends SourceMapper {
         try {
             aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
         } catch (MalformedURLException e) {
-            throw new SiddhiAppValidationException(siddhiAppName + " : MalformedURLException. "
-                    + e.getMessage()); //todo update with grpc code
+            throw new SiddhiAppValidationException(siddhiAppContext.getName() + ": Error in URL format. Expected " +
+                    "format is `grpc://0.0.0.0:9763/<serviceName>/<methodName>` but the provided url is " + url + "."
+                    , e);
         }
+        Object messageBuilderObject; // need builder to get all the fields in the message object
         String methodReference = getMethodName(aURL.getPath());
-        String serviceReference = getServiceName(aURL.getPath());
-        String userProvidedClassName = "";
+        String fullQualifiedServiceReference = getServiceName(aURL.getPath());
+        String userProvidedClassName = ""; //Example 3 todo remove
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        Object messageBuilderObject; // need builder to get all the fields in the message object
         try {
             String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
                     methodReference.substring(1);
-            Field methodDescriptor = Class.forName(serviceReference + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE)
-                    .getDeclaredField(GrpcConstants.GETTER + capitalizedFirstLetterMethodName +
-                            GrpcConstants.METHOD_NAME);
+            Field methodDescriptor = Class.forName(fullQualifiedServiceReference +
+                    GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
+                    (GrpcConstants.GETTER + capitalizedFirstLetterMethodName + GrpcConstants.METHOD_NAME);
             ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
-            if (sourceType.equalsIgnoreCase(GrpcConstants.GRPC_CALL_RESPONSE_SOURCE_NAME)) {
+            if (GrpcConstants.GRPC_CALL_RESPONSE_SOURCE_NAME.equalsIgnoreCase(sourceType)) {
                 this.messageObjectClass = (Class) parameterizedType
                         .getActualTypeArguments()[GrpcConstants.RESPONSE_CLASS_POSITION];
             } else {
                 this.messageObjectClass = (Class) parameterizedType
                         .getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
             }
-            if (!userProvidedClassName.equals("")) {
+            if (!userProvidedClassName.isEmpty()) {
                 if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { // only if sink is a grpc type, check for
                     // both user provided class name and the required class name
                     if (!this.messageObjectClass.getName().equals(userProvidedClassName)) {
                         throw new SiddhiAppCreationException(siddhiAppName +
-                                " :provided class name does not match with the original mapping class, provided class" +
-                                " : "
-                                + userProvidedClassName + " , expected : " + messageObjectClass.getName());
-                    }
+                                " : provided class name does not match with the original mapping class, provided class" +
+                                " : " + userProvidedClassName + ", expected : " + messageObjectClass.getName());
+                    } // TODO: 9/11/19 check fo error messages and pass e.getMessage()
                 }
             }
             Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME);
-            messageBuilderObject = builderMethod.invoke(messageObjectClass);
+            messageBuilderObject = builderMethod.invoke(messageObjectClass); //to get the getter methods
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new SiddhiAppCreationException(siddhiAppName + ": Invalid method name provided " +
-                    "in the url," +
-                    " provided method name : '" + methodReference + "' expected one of these methods : " +
-                    getRPCmethodList(serviceReference, siddhiAppName), e);  // this error will be
+                    "in the url, provided method name : '" + methodReference + "' expected one of these methods : " +
+                    getRPCmethodList(fullQualifiedServiceReference, siddhiAppName), e);
         } catch (ClassNotFoundException e) {
             throw new SiddhiAppCreationException(siddhiAppName + ": " +
-                    "Invalid service name provided in url, provided service name : '" + serviceReference + "'", e);
-            //todo
+                    "Invalid service name provided in url, provided service name : '" +
+                    fullQualifiedServiceReference + "'", e);
         } catch (NoSuchFieldException e) {
             //same error as NoSuchMethod', because field is getting from the method name
             throw new SiddhiAppCreationException(siddhiAppName + ": Invalid method name provided " +
-                    "in the " +
-                    "url," +
-                    " provided method name : '" + methodReference + "' expected one of these methods : " +
-                    getRPCmethodList(serviceReference, siddhiAppName));
+                    "in the url, provided method name : '" + methodReference + "' expected one of these methods : " +
+                    getRPCmethodList(fullQualifiedServiceReference, siddhiAppName)); // TODO: 9/11/19 pass e
         }
         Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
         String protobufFieldsWithTypes = protobufFieldsWithTypes(fields);
@@ -242,10 +226,11 @@ public class ProtobufSourceMapper extends SourceMapper {
                     mappingPositionDataList.add(new MappingPositionData(i, getter));
                 } catch (NoSuchMethodException e) {
                     attributeName = attributeName.substring(0, 1).toLowerCase() + attributeName.substring(1);
-                    throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
-                            "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
+                    throw new SiddhiAppRuntimeException(this.siddhiAppName + " Attribute name or type does " +
+                            "not match with protobuf variable or type. Provided attribute \"'" + attributeName + "' :" +
                             " " + attributeType + "\". Expected one of these attributes " + protobufFieldsWithTypes +
                             " ", e);
+                    //todo check for spellings..
                 }
             }
         } else {
@@ -253,8 +238,7 @@ public class ProtobufSourceMapper extends SourceMapper {
                 AttributeMapping attributeMapping = attributeMappingList.get(i);
                 String attributeName = attributeMapping.getMapping();
                 int position = attributeMapping.getPosition();
-                Attribute.Type attributeType = streamDefinition.getAttributeList().get(i).getType(); // to throw errors
-
+                Attribute.Type attributeType = streamDefinition.getAttributeList().get(i).getType();
                 attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
                 Method getter;
                 try {
@@ -275,24 +259,11 @@ public class ProtobufSourceMapper extends SourceMapper {
         }
     }
 
-    /**
-     * Returns the list of classes which this source can output.
-     *
-     * @return Array of classes that will be output by the source.
-     * Null or empty array if it can produce any type of class.
-     */
     @Override
     public Class[] getSupportedInputEventClasses() {
         return new Class[]{GeneratedMessageV3.class};
     }
 
-    /**
-     * Method to map the incoming event and as pass that via inputEventHandler to process further.
-     *
-     * @param eventObject       Incoming event Object based on the supported event class imported by the extensions.
-     * @param inputEventHandler Handler to pass the converted Siddhi Event for processing
-     * @throws InterruptedException if it does not throw the exception immediately due to streaming
-     */
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Object[] objectArray = new Object[this.size];
@@ -301,9 +272,8 @@ public class ProtobufSourceMapper extends SourceMapper {
             try {
                 value = mappingPositionData.getGetterMethod().invoke(eventObject);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new SiddhiAppRuntimeException(siddhiAppName + "Unknown error occurred during " +
-                        "runtime", e);
-            }
+                throw new SiddhiAppRuntimeException(siddhiAppName + " unknown error occurred during runtime", e);
+            } // TODO: 9/11/19 leave a comment
             objectArray[mappingPositionData.getPosition()] = value;
         }
         Event event = new Event();
@@ -311,15 +281,6 @@ public class ProtobufSourceMapper extends SourceMapper {
         inputEventHandler.sendEvent(event);
     }
 
-    /**
-     * Method used by {@link SourceMapper} to determine on how to handle transport properties with null values. If
-     * this returns 'false' then {@link SourceMapper} will drop any event/s with null transport
-     * property values. If this returns
-     * 'true' then {@link SourceMapper} will send events even though they contains null transport properties.
-     * This method will be called after init().
-     *
-     * @return whether {@link SourceMapper} should allow or drop events when transport properties are null.
-     */
     @Override
     protected boolean allowNullInTransportProperties() {
         return false;

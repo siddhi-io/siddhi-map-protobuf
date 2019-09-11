@@ -59,8 +59,7 @@ public class ProtobufUtils {
         return urlParts.get(GrpcConstants.PATH_METHOD_NAME_POSITION);
     }
 
-
-    public static Class getDataType(Attribute.Type type) {
+    public static Class getDataType(Attribute.Type type) { // TODO: 9/11/19 use switch case
         if (type == Attribute.Type.STRING) {
             return String.class;
         } else if (type == Attribute.Type.INT) {
@@ -74,7 +73,7 @@ public class ProtobufUtils {
         } else if (type == Attribute.Type.BOOL) {
             return Boolean.TYPE;
         }
-        throw new SiddhiAppRuntimeException("Unknown Data Type");
+        return null; // won't reach here
     }
 
     public static  String protobufFieldsWithTypes(Field[] protobufFields) {
@@ -87,7 +86,7 @@ public class ProtobufUtils {
             String[] tempFieldNameArray = field.getType().getTypeName().split("\\.");
             String type = tempFieldNameArray[tempFieldNameArray.length - 1];
             if (type.equals("Object")) {
-                type = "String"; //todo check if there is another data type available that the variable type is set
+                type = "String";
                 // as Object
             } else if (type.equals("MapField")) {
                 type = "Map";
