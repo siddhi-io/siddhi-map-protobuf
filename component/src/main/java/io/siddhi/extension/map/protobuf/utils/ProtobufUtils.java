@@ -18,7 +18,6 @@
 package io.siddhi.extension.map.protobuf.utils;
 
 import io.siddhi.core.exception.SiddhiAppCreationException;
-import io.siddhi.core.exception.SiddhiAppRuntimeException;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
 
@@ -33,50 +32,57 @@ import java.util.List;
  * Class to get service name, methodNames and the package name from url
  */
 public class ProtobufUtils {
-    public static String getServiceName(String path) {
+    public static String getServiceName(String path, String siddhiAppname) {
         List<String> urlParts = new ArrayList<>(Arrays.asList(path.substring(1).split(GrpcConstants
                 .PORT_SERVICE_SEPARATOR)));
         if (urlParts.contains(GrpcConstants.EMPTY_STRING)) {
-            throw new SiddhiAppValidationException("Malformed URL. There should not be any empty parts in the URL " +
-                    "between two '/'");
+            throw new SiddhiAppValidationException(siddhiAppname + ": Malformed URL. There should not be any empty " +
+                    "parts in the URL between two '/'");
         }
         if (urlParts.size() < 2) {
-            throw new SiddhiAppValidationException("Malformed URL. After port number at least two sections should " +
-                    "be available separated by '/' as in 'grpc://<host>:<port>/<ServiceName>/<MethodName>'");
+            throw new SiddhiAppValidationException(siddhiAppname + ": Malformed URL. After port number at " +
+                    "least two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
+                    "<ServiceName>/<MethodName>'");
         }
         return urlParts.get(GrpcConstants.PATH_SERVICE_NAME_POSITION);
-
     }
 
-    public static String getMethodName(String path) {
+    public static String getMethodName(String path, String siddhiAppName) {
         List<String> urlParts = new ArrayList<>(Arrays.asList(path.split(GrpcConstants.PORT_SERVICE_SEPARATOR)));
         urlParts.removeAll(Collections.singletonList(GrpcConstants.EMPTY_STRING));
         if (urlParts.size() < 2) {
-            throw new SiddhiAppValidationException("Malformed URL. After port number at least two sections should " +
-                    "be available separated by '/' as in 'grpc://<host>:<port>/<ServiceName>/<MethodName>'");
+            throw new SiddhiAppValidationException(siddhiAppName + ": Malformed URL. After port number at least " +
+                    "two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
+                    "<ServiceName>/<MethodName>'");
         }
-
         return urlParts.get(GrpcConstants.PATH_METHOD_NAME_POSITION);
     }
 
-    public static Class getDataType(Attribute.Type type) { // TODO: 9/11/19 use switch case
-        if (type == Attribute.Type.STRING) {
-            return String.class;
-        } else if (type == Attribute.Type.INT) {
-            return Integer.TYPE;
-        } else if (type == Attribute.Type.DOUBLE) {
-            return Double.TYPE;
-        } else if (type == Attribute.Type.LONG) {
-            return Long.TYPE;
-        } else if (type == Attribute.Type.FLOAT) {
-            return Float.TYPE;
-        } else if (type == Attribute.Type.BOOL) {
-            return Boolean.TYPE;
+    public static Class getDataType(Attribute.Type type) {
+        switch (type) {
+            case STRING: {
+                return String.class;
+            }
+            case INT: {
+                return Integer.TYPE;
+            }
+            case LONG: {
+                return Long.TYPE;
+            }
+            case BOOL: {
+                return Boolean.TYPE;
+            }
+            case DOUBLE: {
+                return Double.TYPE;
+            }
+            case FLOAT: {
+                return Float.TYPE;
+            }
         }
         return null; // won't reach here
     }
 
-    public static  String protobufFieldsWithTypes(Field[] protobufFields) {
+    public static String protobufFieldsWithTypes(Field[] protobufFields) {
         StringBuilder variableNamesWithType = new StringBuilder("{ ");
         for (Field field : protobufFields) {
             if (field.getName().equals("bitField0_")) {
@@ -112,7 +118,8 @@ public class ProtobufUtils {
             methodsInStub = Class.forName(stubReference).getMethods(); //get all methods in stub Inner class
         } catch (ClassNotFoundException e) {
             throw new SiddhiAppCreationException(siddhiAppName + ": " +
-                    "Invalid service name provided in url, provided service name : '" + serviceName + "'", e);
+                    "Invalid service name provided in url, provided service name : '" + serviceName + "',"
+                    + e.getMessage(), e);
         }
         // ClassNotFound Exception will be thrown
         for (Method method : methodsInStub) {
@@ -123,7 +130,6 @@ public class ProtobufUtils {
         }
         return rpcMethodNameList;
     }
-
 
 
 }

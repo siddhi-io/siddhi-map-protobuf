@@ -285,7 +285,7 @@ public class TestCaseOfProtobufSinkMapper {
     }
 
     @Test
-    public void protobuSinkMapperTestCaseWithoutPublisherURL() throws InterruptedException {
+    public void protobuSinkMapperTestCaseWithoutPublisherUrl_01() throws InterruptedException {
         log.info("ProtobufSinkMapperTestCase 1");
 
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
@@ -330,6 +330,51 @@ public class TestCaseOfProtobufSinkMapper {
         siddhiAppRuntime.start();
         Object[] data1 = {"Test 01", 60, 10000L, true, 522.7586f, 34.5668};
         stockStream.send(data1);
+        siddhiAppRuntime.shutdown();
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriber);
+    }
+
+    @Test
+    public void protobuSinkMapperTestCaseWithoutPublisherUrl_02() throws InterruptedException {
+        log.info("ProtobufSinkMapperTestCase 2");
+        InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object o) {
+                AssertJUnit.assertEquals(Request.class, o.getClass());
+            }
+
+            @Override
+            public String getTopic() {
+                return "test01";
+            }
+        };
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriber);
+        String streams = "" +
+                "@App:name('TestSiddhiApp1')" +
+                "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
+                "@sink(type='inMemory', topic='test01', " +
+                "@map(type='protobuf', class='org.wso2.grpc.test.Request'," +
+                "@payload(stringValue='a',intValue='c',longValue='b', booleanValue='d',floatValue = 'e', doubleValue" +
+                " = 'f'))) " +
+                "define stream BarStream (a string, b long, c int,d bool,e float,f double); ";
+        String query = "" +
+                "from FooStream " +
+                "select a,b*2 as b,c*2 as c, d ,e*2 as e,f*2 as f " +
+                "insert into BarStream; ";
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(toMap(events));
+            }
+        });
+        InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.start();
+        Object[] data1 = {"Test 01", 10000L, 60, true, 522.7586f, 34.5668};
+        fooStream.send(data1);
         siddhiAppRuntime.shutdown();
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);

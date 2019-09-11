@@ -1,24 +1,42 @@
 ﻿siddhi-map-protobuf
 ======================================
-**Using the extension in <a target="_blank" href="https://github.com/wso2/product-sp">WSO2 Stream Processor</a>**
 
-* You can use this extension in the latest <a target="_blank" href="https://github.com/wso2/product-sp/releases">WSO2 Stream Processor</a> that is a part of <a target="_blank" href="http://wso2.com/analytics?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">WSO2 Analytics</a> offering, with editor, debugger and simulation support.
+ [![Jenkins Build Status](https://wso2.org/jenkins/job/siddhi/job/siddhi-map-protobuf/badge/icon)](https://wso2.org/jenkins/job/siddhi/job/siddhi-map-protobuf/)
+  [![GitHub Release](https://img.shields.io/github/release/siddhi-io/siddhi-map-protobuf.svg)](https://github.com/siddhi-io/siddhi-map-protobuf/releases)
+  [![GitHub Release Date](https://img.shields.io/github/release-date/siddhi-io/siddhi-map-protobuf.svg)](https://github.com/siddhi-io/siddhi-map-protobuf/releases)
+  [![GitHub Open Issues](https://img.shields.io/github/issues-raw/siddhi-io/siddhi-map-protobuf.svg)](https://github.com/siddhi-io/siddhi-map-protobuf/issues)
+  [![GitHub Last Commit](https://img.shields.io/github/last-commit/siddhi-io/siddhi-map-protobuf.svg)](https://github.com/siddhi-io/siddhi-map-protobuf/commits/master)
+  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-* This extension is shipped by default with WSO2 Stream Processor, if you wish to use an alternative version of this extension you can replace the component <a target="_blank" href="https://github.com/wso2-extensions/siddhi-map-protobuf/releases">jar</a> that can be found in the `<STREAM_PROCESSOR_HOME>/lib` directory.
+The **siddhi-map-protobuf extension** is an extension that converts Protobuf messages to/form Siddhi evnets.
 
-**Using the extension as a <a target="_blank" href="https://wso2.github.io/siddhi/documentation/running-as-a-java-library">java library</a>**
+For information on <a target="_blank" href="https://siddhi.io/">Siddhi</a> and it's features refer <a target="_blank" href="https://siddhi.io/redirect/docs.html">Siddhi Documentation</a>. 
 
-* This extension can be added as a maven dependency along with other Siddhi dependencies to your project.
+## Download
 
- * Post your questions with the <a target="_blank" href="http://stackoverflow.com/search?q=siddhi">"Siddhi"</a> tag in <a target="_blank" href="http://stackoverflow.com/search?q=siddhi">Stackoverflow</a>.
+* from <a target="_blank" href="https://mvnrepository.com/artifact/io.siddhi.extension.map.protobuf/siddhi-map-protobuf/">here</a>.
 
- * Siddhi developers can be contacted via the mailing lists:
- 
-    Developers List   : [dev@wso2.org](mailto:dev@wso2.org)
-    
-    Architecture List : [architecture@wso2.org](mailto:architecture@wso2.org)
+## Latest API Docs 
+
+Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-map-protobuf/api/1.0.0">1.0.0</a>.
 
 
-* We are committed to ensuring support for this extension in production. Our unique approach ensures that all support leverages our open development methodology and is provided by the very same engineers who build the technology.
+## Features
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-map-protobuf/api/1.0.0/#protobuf-sink-mapper">protobuf</a> *<a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#sink-mapper">(Sink Mapper)</a>*<br><div style="padding-left: 1em;"><p>This output mapper allows you to convert Events to protobuf messages before publishing them. To work with this mapper you have to add auto-generated protobuf classes to the project classpath. When you use this output mapper, you can either define stream attributes as the same names as the protobuf message attributes or you can use custom mapping to map stream definition attributes with the protobuf attributes.</p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-map-protobuf/api/1.0.0/#protobuf-source-mapper">protobuf</a> *<a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#source-mapper">(Source Mapper)</a>*<br><div style="padding-left: 1em;"><p>This input mapper allows you to convert protobuf messages into Events. To work with this input mapper you have to add auto-generated protobuf classes to the project classpath. When you use this input mapper, you can either define stream attributes as the same names as the protobuf message attributes or you can use custom mapping to map stream definition attributes with the protobuf attributes.</p></div>
 
-* For more details and to take advantage of this unique opportunity contact us via <a target="_blank" href="http://wso2.com/support?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">http://wso2.com/support/</a>.
+## Dependencies 
+
+There are no other dependencies needed for this extension. 
+
+## Installation
+
+For installing this extension on various siddhi execution environments refer Siddhi documentation section on <a target="_blank" href="https://siddhi.io/redirect/add-extensions.html">adding extensions</a>.
+
+## Support and Contribution
+
+* We encourage users to ask questions and get support via <a target="_blank" href="https://stackoverflow.com/questions/tagged/siddhi">StackOverflow</a>, make sure to add the `siddhi` tag to the issue for better response.
+
+* If you find any issues related to the extension please report them on <a target="_blank" href="https://github.com/siddhi-io/siddhi-execution-string/issues">the issue tracker</a>.
+
+* For production support and other contribution related information refer <a target="_blank" href="https://siddhi.io/community/">Siddhi Community</a> documentation.

@@ -50,12 +50,10 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
-            <version>${io.grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
-            <version>${io.grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -65,7 +63,6 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>${com.google.protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.log4j.wso2</groupId>
@@ -74,11 +71,6 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.transport.http</groupId>
-            <artifactId>org.wso2.transport.http.netty</artifactId>
-            <version>${transport.http.version}</version>
         </dependency>
     </dependencies>
     <profiles>
