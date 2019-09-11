@@ -1,4 +1,4 @@
-package org.wso2.grpc.test;
+package io.siddhi.extension.map.protobuf.grpc;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
@@ -19,28 +19,28 @@ public final class MyServiceGrpc {
   public static final String SERVICE_NAME = "MyService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<org.wso2.grpc.test.Request,
+  private static volatile io.grpc.MethodDescriptor<Request,
       com.google.protobuf.Empty> getSendMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "send",
-      requestType = org.wso2.grpc.test.Request.class,
+      requestType = io.siddhi.extension.map.protobuf.grpc.Request.class,
       responseType = com.google.protobuf.Empty.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<org.wso2.grpc.test.Request,
+  public static io.grpc.MethodDescriptor<Request,
       com.google.protobuf.Empty> getSendMethod() {
-    io.grpc.MethodDescriptor<org.wso2.grpc.test.Request, com.google.protobuf.Empty> getSendMethod;
+    io.grpc.MethodDescriptor<Request, com.google.protobuf.Empty> getSendMethod;
     if ((getSendMethod = MyServiceGrpc.getSendMethod) == null) {
       synchronized (MyServiceGrpc.class) {
         if ((getSendMethod = MyServiceGrpc.getSendMethod) == null) {
-          MyServiceGrpc.getSendMethod = getSendMethod = 
-              io.grpc.MethodDescriptor.<org.wso2.grpc.test.Request, com.google.protobuf.Empty>newBuilder()
+          MyServiceGrpc.getSendMethod = getSendMethod =
+              io.grpc.MethodDescriptor.<io.siddhi.extension.map.protobuf.grpc.Request, com.google.protobuf.Empty>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(
                   "MyService", "send"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  org.wso2.grpc.test.Request.getDefaultInstance()))
+                  io.siddhi.extension.map.protobuf.grpc.Request.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   com.google.protobuf.Empty.getDefaultInstance()))
                   .setSchemaDescriptor(new MyServiceMethodDescriptorSupplier("send"))
@@ -51,30 +51,30 @@ public final class MyServiceGrpc {
      return getSendMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<org.wso2.grpc.test.Request,
-      org.wso2.grpc.test.Response> getProcessMethod;
+  private static volatile io.grpc.MethodDescriptor<Request,
+      Response> getProcessMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "process",
-      requestType = org.wso2.grpc.test.Request.class,
-      responseType = org.wso2.grpc.test.Response.class,
+      requestType = io.siddhi.extension.map.protobuf.grpc.Request.class,
+      responseType = io.siddhi.extension.map.protobuf.grpc.Response.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<org.wso2.grpc.test.Request,
-      org.wso2.grpc.test.Response> getProcessMethod() {
-    io.grpc.MethodDescriptor<org.wso2.grpc.test.Request, org.wso2.grpc.test.Response> getProcessMethod;
+  public static io.grpc.MethodDescriptor<Request,
+      Response> getProcessMethod() {
+    io.grpc.MethodDescriptor<Request, Response> getProcessMethod;
     if ((getProcessMethod = MyServiceGrpc.getProcessMethod) == null) {
       synchronized (MyServiceGrpc.class) {
         if ((getProcessMethod = MyServiceGrpc.getProcessMethod) == null) {
-          MyServiceGrpc.getProcessMethod = getProcessMethod = 
-              io.grpc.MethodDescriptor.<org.wso2.grpc.test.Request, org.wso2.grpc.test.Response>newBuilder()
+          MyServiceGrpc.getProcessMethod = getProcessMethod =
+              io.grpc.MethodDescriptor.<io.siddhi.extension.map.protobuf.grpc.Request, io.siddhi.extension.map.protobuf.grpc.Response>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(
                   "MyService", "process"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  org.wso2.grpc.test.Request.getDefaultInstance()))
+                  io.siddhi.extension.map.protobuf.grpc.Request.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  org.wso2.grpc.test.Response.getDefaultInstance()))
+                  io.siddhi.extension.map.protobuf.grpc.Response.getDefaultInstance()))
                   .setSchemaDescriptor(new MyServiceMethodDescriptorSupplier("process"))
                   .build();
           }
@@ -83,30 +83,30 @@ public final class MyServiceGrpc {
      return getProcessMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<org.wso2.grpc.test.RequestWithMap,
-      org.wso2.grpc.test.ResponseWithMap> getTestMapMethod;
+  private static volatile io.grpc.MethodDescriptor<RequestWithMap,
+      ResponseWithMap> getTestMapMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "testMap",
-      requestType = org.wso2.grpc.test.RequestWithMap.class,
-      responseType = org.wso2.grpc.test.ResponseWithMap.class,
+      requestType = io.siddhi.extension.map.protobuf.grpc.RequestWithMap.class,
+      responseType = io.siddhi.extension.map.protobuf.grpc.ResponseWithMap.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<org.wso2.grpc.test.RequestWithMap,
-      org.wso2.grpc.test.ResponseWithMap> getTestMapMethod() {
-    io.grpc.MethodDescriptor<org.wso2.grpc.test.RequestWithMap, org.wso2.grpc.test.ResponseWithMap> getTestMapMethod;
+  public static io.grpc.MethodDescriptor<RequestWithMap,
+      ResponseWithMap> getTestMapMethod() {
+    io.grpc.MethodDescriptor<RequestWithMap, ResponseWithMap> getTestMapMethod;
     if ((getTestMapMethod = MyServiceGrpc.getTestMapMethod) == null) {
       synchronized (MyServiceGrpc.class) {
         if ((getTestMapMethod = MyServiceGrpc.getTestMapMethod) == null) {
-          MyServiceGrpc.getTestMapMethod = getTestMapMethod = 
-              io.grpc.MethodDescriptor.<org.wso2.grpc.test.RequestWithMap, org.wso2.grpc.test.ResponseWithMap>newBuilder()
+          MyServiceGrpc.getTestMapMethod = getTestMapMethod =
+              io.grpc.MethodDescriptor.<io.siddhi.extension.map.protobuf.grpc.RequestWithMap, io.siddhi.extension.map.protobuf.grpc.ResponseWithMap>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(
                   "MyService", "testMap"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  org.wso2.grpc.test.RequestWithMap.getDefaultInstance()))
+                  io.siddhi.extension.map.protobuf.grpc.RequestWithMap.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  org.wso2.grpc.test.ResponseWithMap.getDefaultInstance()))
+                  io.siddhi.extension.map.protobuf.grpc.ResponseWithMap.getDefaultInstance()))
                   .setSchemaDescriptor(new MyServiceMethodDescriptorSupplier("testMap"))
                   .build();
           }
@@ -144,23 +144,22 @@ public final class MyServiceGrpc {
 
     /**
      */
-    public void send(org.wso2.grpc.test.Request request,
+    public void send(io.siddhi.extension.map.protobuf.grpc.Request request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-//      responseObserver.onNext(); todo
       asyncUnimplementedUnaryCall(getSendMethod(), responseObserver);
     }
 
     /**
      */
-    public void process(org.wso2.grpc.test.Request request,
-        io.grpc.stub.StreamObserver<org.wso2.grpc.test.Response> responseObserver) {
+    public void process(io.siddhi.extension.map.protobuf.grpc.Request request,
+        io.grpc.stub.StreamObserver<Response> responseObserver) {
       asyncUnimplementedUnaryCall(getProcessMethod(), responseObserver);
     }
 
     /**
      */
-    public void testMap(org.wso2.grpc.test.RequestWithMap request,
-        io.grpc.stub.StreamObserver<org.wso2.grpc.test.ResponseWithMap> responseObserver) {
+    public void testMap(io.siddhi.extension.map.protobuf.grpc.RequestWithMap request,
+        io.grpc.stub.StreamObserver<ResponseWithMap> responseObserver) {
       asyncUnimplementedUnaryCall(getTestMapMethod(), responseObserver);
     }
 
@@ -170,22 +169,22 @@ public final class MyServiceGrpc {
             getSendMethod(),
             asyncUnaryCall(
               new MethodHandlers<
-                org.wso2.grpc.test.Request,
+                io.siddhi.extension.map.protobuf.grpc.Request,
                 com.google.protobuf.Empty>(
                   this, METHODID_SEND)))
           .addMethod(
             getProcessMethod(),
             asyncUnaryCall(
               new MethodHandlers<
-                org.wso2.grpc.test.Request,
-                org.wso2.grpc.test.Response>(
+                io.siddhi.extension.map.protobuf.grpc.Request,
+                io.siddhi.extension.map.protobuf.grpc.Response>(
                   this, METHODID_PROCESS)))
           .addMethod(
             getTestMapMethod(),
             asyncUnaryCall(
               new MethodHandlers<
-                org.wso2.grpc.test.RequestWithMap,
-                org.wso2.grpc.test.ResponseWithMap>(
+                io.siddhi.extension.map.protobuf.grpc.RequestWithMap,
+                io.siddhi.extension.map.protobuf.grpc.ResponseWithMap>(
                   this, METHODID_TEST_MAP)))
           .build();
     }
@@ -211,7 +210,7 @@ public final class MyServiceGrpc {
 
     /**
      */
-    public void send(org.wso2.grpc.test.Request request,
+    public void send(io.siddhi.extension.map.protobuf.grpc.Request request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(getSendMethod(), getCallOptions()), request, responseObserver);
@@ -219,16 +218,16 @@ public final class MyServiceGrpc {
 
     /**
      */
-    public void process(org.wso2.grpc.test.Request request,
-        io.grpc.stub.StreamObserver<org.wso2.grpc.test.Response> responseObserver) {
+    public void process(io.siddhi.extension.map.protobuf.grpc.Request request,
+        io.grpc.stub.StreamObserver<Response> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(getProcessMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      */
-    public void testMap(org.wso2.grpc.test.RequestWithMap request,
-        io.grpc.stub.StreamObserver<org.wso2.grpc.test.ResponseWithMap> responseObserver) {
+    public void testMap(io.siddhi.extension.map.protobuf.grpc.RequestWithMap request,
+        io.grpc.stub.StreamObserver<ResponseWithMap> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(getTestMapMethod(), getCallOptions()), request, responseObserver);
     }
@@ -254,21 +253,21 @@ public final class MyServiceGrpc {
 
     /**
      */
-    public com.google.protobuf.Empty send(org.wso2.grpc.test.Request request) {
+    public com.google.protobuf.Empty send(io.siddhi.extension.map.protobuf.grpc.Request request) {
       return blockingUnaryCall(
           getChannel(), getSendMethod(), getCallOptions(), request);
     }
 
     /**
      */
-    public org.wso2.grpc.test.Response process(org.wso2.grpc.test.Request request) {
+    public io.siddhi.extension.map.protobuf.grpc.Response process(io.siddhi.extension.map.protobuf.grpc.Request request) {
       return blockingUnaryCall(
           getChannel(), getProcessMethod(), getCallOptions(), request);
     }
 
     /**
      */
-    public org.wso2.grpc.test.ResponseWithMap testMap(org.wso2.grpc.test.RequestWithMap request) {
+    public io.siddhi.extension.map.protobuf.grpc.ResponseWithMap testMap(io.siddhi.extension.map.protobuf.grpc.RequestWithMap request) {
       return blockingUnaryCall(
           getChannel(), getTestMapMethod(), getCallOptions(), request);
     }
@@ -295,23 +294,23 @@ public final class MyServiceGrpc {
     /**
      */
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty> send(
-        org.wso2.grpc.test.Request request) {
+        io.siddhi.extension.map.protobuf.grpc.Request request) {
       return futureUnaryCall(
           getChannel().newCall(getSendMethod(), getCallOptions()), request);
     }
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<org.wso2.grpc.test.Response> process(
-        org.wso2.grpc.test.Request request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.siddhi.extension.map.protobuf.grpc.Response> process(
+        io.siddhi.extension.map.protobuf.grpc.Request request) {
       return futureUnaryCall(
           getChannel().newCall(getProcessMethod(), getCallOptions()), request);
     }
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<org.wso2.grpc.test.ResponseWithMap> testMap(
-        org.wso2.grpc.test.RequestWithMap request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.siddhi.extension.map.protobuf.grpc.ResponseWithMap> testMap(
+        io.siddhi.extension.map.protobuf.grpc.RequestWithMap request) {
       return futureUnaryCall(
           getChannel().newCall(getTestMapMethod(), getCallOptions()), request);
     }
@@ -339,16 +338,16 @@ public final class MyServiceGrpc {
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
         case METHODID_SEND:
-          serviceImpl.send((org.wso2.grpc.test.Request) request,
+          serviceImpl.send((io.siddhi.extension.map.protobuf.grpc.Request) request,
               (io.grpc.stub.StreamObserver<com.google.protobuf.Empty>) responseObserver);
           break;
         case METHODID_PROCESS:
-          serviceImpl.process((org.wso2.grpc.test.Request) request,
-              (io.grpc.stub.StreamObserver<org.wso2.grpc.test.Response>) responseObserver);
+          serviceImpl.process((io.siddhi.extension.map.protobuf.grpc.Request) request,
+              (io.grpc.stub.StreamObserver<Response>) responseObserver);
           break;
         case METHODID_TEST_MAP:
-          serviceImpl.testMap((org.wso2.grpc.test.RequestWithMap) request,
-              (io.grpc.stub.StreamObserver<org.wso2.grpc.test.ResponseWithMap>) responseObserver);
+          serviceImpl.testMap((io.siddhi.extension.map.protobuf.grpc.RequestWithMap) request,
+              (io.grpc.stub.StreamObserver<ResponseWithMap>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -372,7 +371,7 @@ public final class MyServiceGrpc {
 
     @Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return org.wso2.grpc.test.Sample.getDescriptor();
+      return io.siddhi.extension.map.protobuf.grpc.Sample.getDescriptor();
     }
 
     @Override

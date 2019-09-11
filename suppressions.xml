@@ -40,7 +40,6 @@
     <suppress checks=".*" files=".*/transaction/distributed/thrift/.*" />
 
 <!--    do not check auto generated protobuf classes and the service class-->
-    <suppress checks=".*" files=".*/src/test/java/org/wso2/grpc/test/.*" />
-
+    <suppress checks=".*" files=".*/src/test/java/io/siddhi/extension/map/protobuf/grpc/.*" />
 
 </suppressions>
