@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Class to get service name, methodNames and the package name from url
+ * Class to hold the static util methods needed
  */
 public class ProtobufUtils {
     public static String getServiceName(String path, String siddhiAppname) {
@@ -130,6 +130,4 @@ public class ProtobufUtils {
         }
         return rpcMethodNameList;
     }
-
-
 }

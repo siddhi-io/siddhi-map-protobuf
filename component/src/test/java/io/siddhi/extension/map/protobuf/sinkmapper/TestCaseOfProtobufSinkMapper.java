@@ -15,7 +15,6 @@
  */
 package io.siddhi.extension.map.protobuf.sinkmapper;
 
-
 import io.siddhi.core.SiddhiAppRuntime;
 import io.siddhi.core.SiddhiManager;
 import io.siddhi.core.event.Event;
@@ -23,12 +22,12 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.stream.output.StreamCallback;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.transport.InMemoryBroker;
+import io.siddhi.extension.map.protobuf.grpc.Request;
+import io.siddhi.extension.map.protobuf.grpc.RequestWithMap;
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.grpc.test.Request;
-import org.wso2.grpc.test.RequestWithMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,8 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCaseOfProtobufSinkMapper {
     private static final Logger log = Logger.getLogger(TestCaseOfProtobufSinkMapper.class);
-    //    private final int waitTime = 2000;
-//    private final int timeout = 30000;
     private AtomicInteger count = new AtomicInteger();
 
     @BeforeMethod
@@ -61,15 +58,14 @@ public class TestCaseOfProtobufSinkMapper {
             }
         };
 
-
         //subscribe to "inMemory" broker per topic
         InMemoryBroker.subscribe(subscriber);
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (stringValue string, intValue int,longValue long,booleanValue bool," +
                 "floatValue float,doubleValue double); " +
-                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/org.wso2.grpc.test" +
-                ".MyService/process' ," +
+                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/io.siddhi.extension." +
+                "map.protobuf.grpc.MyService/process' ," +
                 "@map(type='protobuf')) " +
                 "define stream BarStream (stringValue string, intValue int,longValue long,booleanValue bool," +
                 "floatValue float,doubleValue double); ";
@@ -79,8 +75,6 @@ public class TestCaseOfProtobufSinkMapper {
                 "insert into BarStream; ";
         SiddhiManager siddhiManager = new SiddhiManager();
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
-
         siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
@@ -115,8 +109,8 @@ public class TestCaseOfProtobufSinkMapper {
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
-                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/org.wso2.grpc.test" +
-                ".MyService/process' ," +
+                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/io.siddhi.extension." +
+                "map.protobuf.grpc.MyService/process' ," +
                 "@map(type='protobuf' , " +
                 "@payload(stringValue='a',intValue='c',longValue='b', booleanValue='d',floatValue = 'e', doubleValue" +
                 " = 'f'))) " +
@@ -162,9 +156,9 @@ public class TestCaseOfProtobufSinkMapper {
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
-                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/org.wso2.grpc.test" +
-                ".MyService/process' ," +
-                "@map(type='protobuf' , class='org.wso2.grpc.test.Request', " +
+                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/io.siddhi.extension." +
+                "map.protobuf.grpc.MyService/process' ," +
+                "@map(type='protobuf' , class='io.siddhi.extension.map.protobuf.grpc.Request', " +
                 "@payload(stringValue='a',longValue='b',intValue='c',booleanValue='d',floatValue = 'e', doubleValue =" +
                 " 'f'))) " +
                 "define stream BarStream (a string, b long, c int,d bool,e float,f double); ";
@@ -209,8 +203,8 @@ public class TestCaseOfProtobufSinkMapper {
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (a string, b int,c object); " +
-                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/org.wso2.grpc.test" +
-                ".MyService/testMap' ," +
+                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/io.siddhi.extension." +
+                "map.protobuf.grpc.MyService/testMap' ," +
                 "@map(type='protobuf' , " +
                 "@payload(stringValue='a', map='c',intValue='b'))) " +
                 "define stream BarStream (a string,b int,c object); ";
@@ -236,7 +230,6 @@ public class TestCaseOfProtobufSinkMapper {
         InMemoryBroker.unsubscribe(subscriber);
     }
 
-
     @Test
     public void protobuSinkMapperTestCase5() throws InterruptedException {
         log.info("ProtobufSinkMapperTestCase 5");
@@ -258,8 +251,8 @@ public class TestCaseOfProtobufSinkMapper {
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (stringValue string,intValue int,map object); " +
-                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/org.wso2.grpc.test" +
-                ".MyService/testMap' ," +
+                "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/io.siddhi.extension." +
+                "map.protobuf.grpc.MyService/testMap' ," +
                 "@map(type='protobuf')) " +
                 "define stream BarStream (stringValue string,intValue int,map object); ";
         String query = "" +
@@ -309,17 +302,16 @@ public class TestCaseOfProtobufSinkMapper {
                 "define stream FooStream (stringValue string, intValue int,longValue long,booleanValue bool," +
                 "floatValue float,doubleValue double); " +
                 "@sink(type='inMemory', topic='test01'," +
-                "@map(type='protobuf', class='org.wso2.grpc.test.Request')) " +
+                "@map(type='protobuf', class='io.siddhi.extension.map.protobuf.grpc.Request')) " +
                 "define stream BarStream (stringValue string, intValue int,longValue long,booleanValue bool," +
                 "floatValue float,doubleValue double); ";
         String query = "" +
                 "from FooStream " +
                 "select * " +
                 "insert into BarStream; ";
+
         SiddhiManager siddhiManager = new SiddhiManager();
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-
-
         siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
@@ -355,7 +347,7 @@ public class TestCaseOfProtobufSinkMapper {
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
                 "@sink(type='inMemory', topic='test01', " +
-                "@map(type='protobuf', class='org.wso2.grpc.test.Request'," +
+                "@map(type='protobuf', class='io.siddhi.extension.map.protobuf.grpc.Request'," +
                 "@payload(stringValue='a',intValue='c',longValue='b', booleanValue='d',floatValue = 'e', doubleValue" +
                 " = 'f'))) " +
                 "define stream BarStream (a string, b long, c int,d bool,e float,f double); ";
