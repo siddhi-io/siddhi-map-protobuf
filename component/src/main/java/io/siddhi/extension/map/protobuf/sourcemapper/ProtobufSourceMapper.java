@@ -149,7 +149,7 @@ public class ProtobufSourceMapper extends SourceMapper {
 
         mappingPositionDataList = new ArrayList<>();
         this.size = streamDefinition.getAttributeList().size();
-        this.siddhiAppName = siddhiAppContext.getName(); // TODO: 9/11/19
+        this.siddhiAppName = siddhiAppContext.getName();
         if (GrpcConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType) && attributeMappingList.size() == 0) {
             throw new SiddhiAppCreationException("No mapping found at @Map, mapping should be available to continue " +
                     "for Siddhi App " + siddhiAppName); //grpc-service-source should have a mapping

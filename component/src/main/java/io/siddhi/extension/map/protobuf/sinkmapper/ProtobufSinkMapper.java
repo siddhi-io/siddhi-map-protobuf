@@ -132,7 +132,6 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
 )
 
 public class ProtobufSinkMapper extends SinkMapper {
-    // TODO: 9/11/19 Add examples
     private static final Logger log = Logger.getLogger(ProtobufSinkMapper.class);
     private Object messageBuilderObject;
     private List<MappingPositionData> mappingPositionDataList;
@@ -147,7 +146,7 @@ public class ProtobufSinkMapper extends SinkMapper {
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, Map<String, TemplateBuilder>
             templateBuilderMap, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.siddhiAppName = siddhiAppContext.getName();
-        if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType) // TODO: 9/11/19 skip this
+        if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)
                 && templateBuilderMap.size() == 0) {
             throw new SiddhiAppCreationException(" No mapping found at @Map, mapping is required to continue " +
                     "for Siddhi App " + siddhiAppName); //grpc-service-response should have a mapping
@@ -192,7 +191,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                     messageObjectClass = (Class) parameterizedType.
                             getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
                 }
-                if (userProvidedClassName != null) { //todo change the testcases
+                if (userProvidedClassName != null) {
                     if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { // only if sink is a grpc type, check for
                         // both user provided class name and the required class name
                         if (!messageObjectClass.getName().equals(userProvidedClassName)) {
@@ -331,8 +330,7 @@ public class ProtobufSinkMapper extends SinkMapper {
             }
             throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
                     "not match with protobuf variable or type. provided attribute \"'" + attributeName +
-                    "' :" +
-                    " " + attributeTypeName + "\". Expected one of these attributes " +
+                    "' : " + attributeTypeName + "\". Expected one of these attributes " +
                     protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
         }
     }
@@ -340,7 +338,6 @@ public class ProtobufSinkMapper extends SinkMapper {
     private static class MappingPositionData {
         private Method messageObjectSetterMethod;
         private int position; //this attribute can be removed
-        // TODO: 9/11/19 change the implementation, create two seperate classes
 
         private MappingPositionData(Method messageObjectSetterMethod, int position) {
             this.messageObjectSetterMethod = messageObjectSetterMethod;
