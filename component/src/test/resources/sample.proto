@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+option java_package = "package01.test";
+
+message Request
+{
+    string stringValue = 1;
+    int32 intValue = 2;
+    int64 longValue = 3;
+    bool booleanValue = 4;
+    float floatValue = 5;
+    double doubleValue = 6;
+
+}
+message Empty
+{
+    
+}
+
+message Response
+{
+    string StringValue = 1;
+    int32 intValue = 2;
+    int64 LongValue = 3;
+    bool booleanValue = 4;
+    float floatValue = 5;
+    double doubleValue = 6;
+}
+
+
+service MyService
+{
+    rpc send(Request) returns(Empty);
+    rpc process(Request) returns(Response);
+}
