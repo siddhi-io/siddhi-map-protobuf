@@ -158,7 +158,7 @@ public class TestCaseOfProtobufSinkMapper {
                 "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
                 "@sink(type='inMemory', topic='test01', publisher.url = 'grpc://localhost:2000/io.siddhi.extension." +
                 "map.protobuf.grpc.MyService/process' ," +
-                "@map(type='protobuf' , class='io.siddhi.extension.map.protobuf.grpc.Request', " +
+                "@map(type='protobuf' , class='io.siddhi.extension.map.protobuf.grpc.Reuest', " +
                 "@payload(stringValue='a',longValue='b',intValue='c',booleanValue='d',floatValue = 'e', doubleValue =" +
                 " 'f'))) " +
                 "define stream BarStream (a string, b long, c int,d bool,e float,f double); ";
@@ -271,15 +271,15 @@ public class TestCaseOfProtobufSinkMapper {
         siddhiAppRuntime.start();
         Map<String, String> map1 = new HashMap<>();
         map1.put("0001", "Barry Allen");
-        Object[] data1 = {"Test 01", 60000, map1};
+        Object[] data1 = {"Test 01", 60000, "map1"};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
         InMemoryBroker.unsubscribe(subscriber);
     }
 
     @Test
-    public void protobuSinkMapperTestCaseWithoutPublisherUrl_01() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 1");
+    public void protobufSinkMapperTestCaseWithoutPublisherUrl_01() throws InterruptedException {
+        log.info("protobufSinkMapperTestCaseWithoutPublisherUrl_01 1");
 
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
@@ -347,7 +347,7 @@ public class TestCaseOfProtobufSinkMapper {
                 "@App:name('TestSiddhiApp1')" +
                 "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
                 "@sink(type='inMemory', topic='test01', " +
-                "@map(type='protobuf', class='io.siddhi.extension.map.protobuf.grpc.Request'," +
+                "@map(type='protobuf', class='io.siddhi.extensin.map.protobuf.grpc.Request'," +
                 "@payload(stringValue='a',intValue='c',longValue='b', booleanValue='d',floatValue = 'e', doubleValue" +
                 " = 'f'))) " +
                 "define stream BarStream (a string, b long, c int,d bool,e float,f double); ";
@@ -371,4 +371,5 @@ public class TestCaseOfProtobufSinkMapper {
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);
     }
+
 }
