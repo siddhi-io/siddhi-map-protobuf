@@ -136,6 +136,7 @@ public class ProtobufSinkMapper extends SinkMapper {
     private Object messageBuilderObject;
     private List<MappingPositionData> mappingPositionDataList;
     private String siddhiAppName;
+    private String streamID;
 
     @Override
     public String[] getSupportedDynamicOptions() {
@@ -146,13 +147,14 @@ public class ProtobufSinkMapper extends SinkMapper {
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, Map<String, TemplateBuilder>
             templateBuilderMap, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.siddhiAppName = siddhiAppContext.getName();
+        this.streamID = streamDefinition.getId();
         mappingPositionDataList = new ArrayList<>();
         String userProvidedClassName = null;
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        Class messageObjectClass;                                   //inMemory is only used for testCases.
-        if(sinkType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME) /*|| sinkType.startsWith("inMemory")*/) {
+        Class messageObjectClass;
+        if (sinkType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
             if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)
                     && templateBuilderMap.size() == 0) {
                 throw new SiddhiAppCreationException(" No mapping found at @Map, mapping is required to continue " +
@@ -166,14 +168,15 @@ public class ProtobufSinkMapper extends SinkMapper {
                 URL aURL;
                 try {
                     if (!url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
-                        throw new SiddhiAppValidationException(siddhiAppName + ": The url must " +
+                        throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": The url must " +
                                 "begin with \"" + GrpcConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
                     }
                     aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
                 } catch (MalformedURLException e) {
-                    throw new SiddhiAppValidationException(siddhiAppName + ": Error in URL format. Expected " +
-                            "format is `grpc://0.0.0.0:9763/<serviceName>/<methodName>` but the provided url is "
-                            + url + "," + e.getMessage(), e);
+                    throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Error in URL format." +
+                            " Expected format is `grpc://0.0.0.0:9763/<serviceName>/<methodName>` but the provided " +
+                            "url" +
+                            " is '" + url + "'," + e.getMessage(), e);
                 }
                 String methodReference = getMethodName(aURL.getPath(), siddhiAppName);
                 String fullQualifiedServiceReference = getServiceName(aURL.getPath(), siddhiAppName);
@@ -196,10 +199,10 @@ public class ProtobufSinkMapper extends SinkMapper {
                         if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { //only if sink is a grpc type, check for
                             // both user provided class name and the required class name
                             if (!messageObjectClass.getName().equals(userProvidedClassName)) {
-                                throw new SiddhiAppCreationException(siddhiAppContext.getName() +
+                                throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID +
                                         ": provided class name does not match with the original mapping class, " +
-                                        "provided class: " + userProvidedClassName + " , expected : " +
-                                        messageObjectClass.getName());
+                                        "provided class: '" + userProvidedClassName + "' , expected: '" +
+                                        messageObjectClass.getName() + "'");
                             }
                         }
                     }
@@ -208,24 +211,24 @@ public class ProtobufSinkMapper extends SinkMapper {
                     messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                         NoSuchFieldException e) {
-                    throw new SiddhiAppCreationException(siddhiAppName + ": Invalid method name provided " +
-                            "in the url, provided method name : '" + methodReference + "' expected one of these " +
-                            "methods : " + getRPCmethodList(fullQualifiedServiceReference, siddhiAppName) + "," +
+                    throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + ": Invalid method name " +
+                            "provided in the url, provided method name : '" + methodReference + "' expected one of " +
+                            "these methods : " + getRPCmethodList(fullQualifiedServiceReference, siddhiAppName) + "," +
                             e.getMessage(), e);
                 } catch (ClassNotFoundException e) {
-                    throw new SiddhiAppCreationException(siddhiAppName + ": Invalid service name provided in" +
-                            " url, provided service name : '" + fullQualifiedServiceReference + "'," + e.getMessage(),
-                            e);
+                    throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + ": Invalid service name " +
+                            "provided in url, provided service name : '" + fullQualifiedServiceReference + "'," +
+                            e.getMessage(), e);
                 }
             } else {
-                throw new SiddhiAppValidationException(siddhiAppName + ": either " +
+                throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": either " +
                         "receiver.url or publisher.url should be given. But found neither");
             }
-        }else {
+        } else {
             log.info(siddhiAppName + ": Not a grpc sink, getting the protobuf class name from 'class' parameter");
             if (userProvidedClassName == null) {
-                throw new SiddhiAppCreationException("No class name provided in the @map, you should provide the" +
-                        "protobuf class name within the 'class' parameter");
+                throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + "No class name provided in " +
+                        "the @map, you should provide the protobuf class name within the 'class' parameter");
             }
             try {
                 messageObjectClass = Class.forName(userProvidedClassName);
@@ -234,8 +237,9 @@ public class ProtobufSinkMapper extends SinkMapper {
                 messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
                     InvocationTargetException e) {
-                throw new SiddhiAppCreationException(siddhiAppName + ": Invalid class name provided in the 'class'" +
-                        " parameter, provided class name: " + userProvidedClassName + "," + e.getMessage(), e);
+                throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + ": Invalid class name provided" +
+                        " in the 'class' parameter, provided class name: '" + userProvidedClassName + "'," +
+                        e.getMessage(), e);
             }
         }
         initializeSetterMethods(streamDefinition, templateBuilderMap);
@@ -267,7 +271,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                 String nameOfFoundClass = data.getClass().getName();
                 String[] foundClassnameArray = nameOfFoundClass.split("\\.");
                 nameOfFoundClass = foundClassnameArray[foundClassnameArray.length - 1]; // to get the last name
-                throw new SiddhiAppRuntimeException(this.siddhiAppName + " : Data type does not match. " +
+                throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " : Data type does not match. " +
                         "Expected data type: '" + nameOfExpectedClass + "' found: '" + nameOfFoundClass + "'," +
                         e.getMessage(), e);
             }
@@ -278,8 +282,8 @@ public class ProtobufSinkMapper extends SinkMapper {
             // build() method
             sinkListener.publish(messageObject);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new SiddhiAppRuntimeException(siddhiAppName + " Unknown error occurred during runtime," +
-                    e.getMessage(), e);
+            throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " Unknown error occurred during " +
+                    "runtime," + e.getMessage(), e);
             // this error will not throw, All possible scenarios are handled in the init() method.
         }
     }
@@ -336,7 +340,7 @@ public class ProtobufSinkMapper extends SinkMapper {
             if (attributeType == Attribute.Type.OBJECT) {
                 attributeTypeName = "Map";
             }
-            throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type does " +
+            throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + "Attribute name or type does " +
                     "not match with protobuf variable or type. provided attribute \"'" + attributeName +
                     "' : " + attributeTypeName + "\". Expected one of these attributes " +
                     protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);

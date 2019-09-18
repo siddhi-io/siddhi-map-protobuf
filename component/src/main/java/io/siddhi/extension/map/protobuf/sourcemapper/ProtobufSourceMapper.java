@@ -139,8 +139,10 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
 public class ProtobufSourceMapper extends SourceMapper {
     private static final Logger log = Logger.getLogger(ProtobufSourceMapper.class);
     private List<MappingPositionData> mappingPositionDataList;
+    private Object messageBuilderObject;
     private int size;
     private String siddhiAppName;
+    private String streamID;
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
@@ -150,12 +152,13 @@ public class ProtobufSourceMapper extends SourceMapper {
         mappingPositionDataList = new ArrayList<>();
         this.size = streamDefinition.getAttributeList().size();
         this.siddhiAppName = siddhiAppContext.getName();
+        this.streamID = streamDefinition.getId();
         String userProvidedClassName = null;
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        Class messageObjectClass;                                       //inMemory is only  used to run testcase
-        if (sourceType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME) || sourceType.startsWith("inMemory")) {
+        Class messageObjectClass;
+        if (sourceType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
             if (GrpcConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType)
                     && attributeMappingList.size() == 0) {
                 throw new SiddhiAppCreationException("No mapping found at @Map, mapping should be available to " +
@@ -222,14 +225,18 @@ public class ProtobufSourceMapper extends SourceMapper {
                         "receiver.url or publisher.url should be given. But found neither");
             }
         } else {
-            log.info(siddhiAppName + ": Not a grpc sink, getting the protobuf class name from 'class' parameter");
+            log.info(siddhiAppName + ": Not a grpc source, getting the protobuf class name from 'class' parameter");
             if (userProvidedClassName == null) {
                 throw new SiddhiAppCreationException("No class name provided in the @map, you should provide the" +
                         " class name with the 'class' parameter");
             }
             try {
                 messageObjectClass = Class.forName(userProvidedClassName);
-            } catch (ClassNotFoundException e) {
+                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                // create an builder object of message class
+                messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+                    InvocationTargetException e) {
                 throw new SiddhiAppCreationException(siddhiAppName + ": Invalid class name provided in the 'class'" +
                         " parameter, provided class name: " + userProvidedClassName + "," + e.getMessage(), e);
             }
@@ -284,7 +291,7 @@ public class ProtobufSourceMapper extends SourceMapper {
                     }
                     mappingPositionDataList.add(new MappingPositionData(i, getter));
                 } catch (NoSuchMethodException e) {
-                    Field[] fields = messageObjectClass.getDeclaredFields();
+                    Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
                     attributeName = attributeName.substring(0, 1).toLowerCase() + attributeName.substring(1);
                     throw new SiddhiAppRuntimeException(this.siddhiAppName + " Attribute name or type does " +
                             "not match with protobuf variable or type. Provided attribute \"'" + attributeName +
@@ -309,7 +316,7 @@ public class ProtobufSourceMapper extends SourceMapper {
                     }
                     mappingPositionDataList.add(new MappingPositionData(position, getter));
                 } catch (NoSuchMethodException e) {
-                    Field[] fields = messageObjectClass.getDeclaredFields();
+                    Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
                     throw new SiddhiAppRuntimeException(this.siddhiAppName + "Attribute name or type do " +
                             "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
                             " " + attributeType + "\". Expected one of these attributes " +
