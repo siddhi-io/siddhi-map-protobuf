@@ -83,7 +83,7 @@ public class TestCaseOfProtobufSinkMapper {
         });
         InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
         siddhiAppRuntime.start();
-        Object[] data1 = {60,"Test 01", 10000L, true, 522.7586f, 34.5668};
+        Object[] data1 = {60, "Test 01", 10000L, true, 522.7586f, 34.5668};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
         //unsubscribe from "inMemory" broker per topic

@@ -84,8 +84,8 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                                 "define stream BarStream (stringValue string, intValue int,longValue long," +
                                 "booleanValue bool,floatValue float,doubleValue double)",
                         description = "Above definition will map BarStream values into the protobuf message type of " +
-                                "the 'process' method in 'MyService' service"),
-
+                                "the 'process' method in 'MyService' service"
+                ),
                 @Example(
                         syntax = "@sink(type='grpc', url = 'grpc://localhost:2000/org.wso2.grpc.test" +
                                 ".MyService/process\n" +
@@ -178,8 +178,8 @@ public class ProtobufSinkMapper extends SinkMapper {
                             "url" +
                             " is '" + url + "'," + e.getMessage(), e);
                 }
-                String methodReference = getMethodName(aURL.getPath(), siddhiAppName);
-                String fullQualifiedServiceReference = getServiceName(aURL.getPath(), siddhiAppName);
+                String methodReference = getMethodName(aURL.getPath(), siddhiAppName, streamID);
+                String fullQualifiedServiceReference = getServiceName(aURL.getPath(), siddhiAppName, streamID);
                 //if user provides the class parameter inside the @templateBuilderMap
                 try {
                     String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
@@ -213,8 +213,8 @@ public class ProtobufSinkMapper extends SinkMapper {
                         NoSuchFieldException e) {
                     throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + ": Invalid method name " +
                             "provided in the url, provided method name : '" + methodReference + "' expected one of " +
-                            "these methods : " + getRPCmethodList(fullQualifiedServiceReference, siddhiAppName) + "," +
-                            e.getMessage(), e);
+                            "these methods : " + getRPCmethodList(fullQualifiedServiceReference, siddhiAppName,
+                            streamID) + "," + e.getMessage(), e);
                 } catch (ClassNotFoundException e) {
                     throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + ": Invalid service name " +
                             "provided in url, provided service name : '" + fullQualifiedServiceReference + "'," +
