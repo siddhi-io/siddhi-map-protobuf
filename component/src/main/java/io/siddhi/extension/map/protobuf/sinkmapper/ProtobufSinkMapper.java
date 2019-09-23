@@ -64,8 +64,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                 " When you use this output mapper, you can either define stream attributes as the same names as the " +
                 "protobuf message attributes or you can use custom mapping to map stream definition attributes with " +
                 "the protobuf attributes..Please find the sample proto definition [here](https://github.com/siddhi-io" +
-                "/siddhi-io/siddhi-map-protobuf/tree/master/component/src/main/resources/) " +
-                ""
+                "/siddhi-map-protobuf/tree/master/component/src/main/resources) "
         ,
         parameters = {
                 @Parameter(name = "class",
@@ -74,7 +73,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                                 "then it's not necessary to provide this parameter.",
                         type = {DataType.STRING},
                         optional = true,
-                        defaultValue = " "),
+                        defaultValue = "-"),
         },
         examples = {
                 @Example(
