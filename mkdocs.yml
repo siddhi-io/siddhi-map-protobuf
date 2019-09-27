@@ -2,7 +2,7 @@ site_name: Siddhi Map Protobuf
 site_description: Siddhi Map Protobuf Extension
 repo_name: Siddhi Map Protobuf
 repo_url: https://github.com/siddhi-io/siddhi-map-protobuf/
-edit_uri:
+edit_uri: null
 copyright: Siddhi - Documentation
 theme:
   name: material
@@ -33,5 +33,8 @@ markdown_extensions:
 pages:
   - Information: index.md
   - API Docs:
-      - 1.0.0-SNAPSHOT: api/1.0.0-SNAPSHOT.md
+      - latest: api/latest.md
+      - 1.0.0-beta: api/1.0.0-beta.md
+      - ? ''
+          : api/.md
   - License: license.md
