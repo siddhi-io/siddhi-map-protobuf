@@ -52,7 +52,7 @@ public class TestCaseOfProtobufSourceMapper {
     public void protobufSourceMapperTest1() throws Exception {
         log.info("ProtobufSourceMapper 1");
         String streams = "" +
-                "@App:name('TestSiddhiApp')" + //todo change and check with request types
+                "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01'," +
                 " @map(type='protobuf', class='" + packageName + ".Request')) " +
                 "define stream FooStream (stringValue string, intValue int,longValue long,booleanValue bool," +

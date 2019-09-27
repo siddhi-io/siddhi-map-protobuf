@@ -135,7 +135,6 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                 )
         }
 )
-// TODO: 9/15/19 add streamId
 public class ProtobufSourceMapper extends SourceMapper {
     private static final Logger log = Logger.getLogger(ProtobufSourceMapper.class);
     private List<MappingPositionData> mappingPositionDataList;

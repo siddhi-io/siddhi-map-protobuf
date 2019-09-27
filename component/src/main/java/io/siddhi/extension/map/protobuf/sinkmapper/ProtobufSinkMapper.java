@@ -129,7 +129,6 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufField
                 )
         }
 )
-// TODO: 9/15/19 add streamID
 public class ProtobufSinkMapper extends SinkMapper {
     private static final Logger log = Logger.getLogger(ProtobufSinkMapper.class);
     private Object messageBuilderObject;
