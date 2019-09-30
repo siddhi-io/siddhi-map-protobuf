@@ -41,6 +41,7 @@ public class TestCaseOfProtobufSourceMapper {
     private final int waitTime = 500;
     private final int timeout = 500;
     private AtomicInteger count = new AtomicInteger();
+    private String packageName = "io.siddhi.extension.map.protobuf.grpc";
 
     @BeforeMethod
     public void init() {
@@ -51,10 +52,9 @@ public class TestCaseOfProtobufSourceMapper {
     public void protobufSourceMapperTest1() throws Exception {
         log.info("ProtobufSourceMapper 1");
         String streams = "" +
-                "@App:name('TestSiddhiApp')" + //todo change and check with request types
-                "@source(type='inMemory', topic='test01',  receiver.url = 'grpc://localhost:2000/io.siddhi.extension." +
-                "map.protobuf.grpc.MyService/process'," +
-                " @map(type='protobuf')) " +
+                "@App:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='test01'," +
+                " @map(type='protobuf', class='" + packageName + ".Request')) " +
                 "define stream FooStream (stringValue string, intValue int,longValue long,booleanValue bool," +
                 "floatValue float,doubleValue double); " +
                 "define stream BarStream (stringValue string, intValue int,longValue long,booleanValue bool," +
@@ -126,9 +126,8 @@ public class TestCaseOfProtobufSourceMapper {
         log.info("ProtobufSourceMapper 2");
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
-                "@source(type='inMemory', topic='test01',  receiver.url = 'grpc://localhost:2000/io.siddhi.extension." +
-                "map.protobuf.grpc.MyService/process'," +
-                " @map(type='protobuf'," +
+                "@source(type='inMemory', topic='test01'," +
+                " @map(type='protobuf', class='" + packageName + ".Request'," +
                 " @attributes(a = 'stringValue', b = 'intValue', c = 'longValue',d = 'booleanValue', e = " +
                 "'floatValue', f ='doubleValue'))) " +
                 "define stream FooStream (a string ,c long,b int, d bool,e float,f double); " +
@@ -196,80 +195,6 @@ public class TestCaseOfProtobufSourceMapper {
 
     }
 
-    @Test
-    public void protobufSourceMapperTest3() throws Exception { // testcase for class parameter
-        log.info("ProtobufSourceMapper 3");
-        String streams = "" +
-                "@App:name('TestSiddhiApp')" +
-                "@source(type='inMemory', topic='test01',  receiver.url = 'grpc://localhost:2000/io.siddhi.extension." +
-                "map.protobuf.grpc.MyService/process'," +
-                " @map(type='protobuf', class='io.siddhi.extension.map.protobuf.grpc.Request'," +
-                " @attributes(a = 'stringValue', b = 'intValue', c = 'longValue',d = 'booleanValue', e = " +
-                "'floatValue', f ='doubleValue'))) " +
-                "define stream FooStream (a string ,c long,b int, d bool,e float,f double); " +
-
-                "define stream BarStream (a string,c long,b int,d bool,e float,f double); ";
-        String query = "" +
-                "from FooStream " +
-                "select * " +
-                "insert into BarStream; ";
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    switch (count.incrementAndGet()) {
-                        case 1:
-                            AssertJUnit.assertEquals("Test 01", event.getData(0));
-                            AssertJUnit.assertEquals(100, event.getData(2));
-                            AssertJUnit.assertEquals(1000000000000000000L, event.getData(1));
-                            AssertJUnit.assertEquals(false, event.getData(3));
-                            AssertJUnit.assertEquals(45.345f, event.getData(4));
-                            AssertJUnit.assertEquals(168.4567, event.getData(5));
-                            break;
-                        case 2:
-                            AssertJUnit.assertEquals("Test 02", event.getData(0));
-                            AssertJUnit.assertEquals(520, event.getData(2));
-                            AssertJUnit.assertEquals(3456445L, event.getData(1));
-                            AssertJUnit.assertEquals(true, event.getData(3));
-                            AssertJUnit.assertEquals(88.235f, event.getData(4));
-                            AssertJUnit.assertEquals(523.455, event.getData(5));
-                            break;
-                        default:
-                            AssertJUnit.fail();
-                    }
-                }
-            }
-        });
-        siddhiAppRuntime.start();
-        Request response1 = Request.newBuilder()
-                .setStringValue("Test 01")
-                .setIntValue(100)
-                .setBooleanValue(false)
-                .setDoubleValue(168.4567)
-                .setFloatValue(45.345f)
-                .setLongValue(1000000000000000000L)
-                .build();
-        Request response2 = Request.newBuilder()
-                .setStringValue("Test 02")
-                .setIntValue(520)
-                .setBooleanValue(true)
-                .setDoubleValue(523.455)
-                .setFloatValue(88.235f)
-                .setLongValue(3456445L)
-                .build();
-        InMemoryBroker.publish("test01", response1);
-        InMemoryBroker.publish("test01", response2);
-        SiddhiTestHelper.waitForEvents(waitTime, 2, count, timeout);
-        //assert event count
-        AssertJUnit.assertEquals("Number of events", 2, count.get());
-        siddhiAppRuntime.shutdown();
-
-    }
 
     @Test
     public void protobufSourceMapperTest4() throws Exception {
@@ -277,8 +202,7 @@ public class TestCaseOfProtobufSourceMapper {
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01',  " +
-                "receiver.url = 'grpc://localhost:2000/io.siddhi.extension.map.protobuf.grpc.MyService/testMap'," +
-                " @map(type='protobuf')) " +
+                " @map(type='protobuf', class='" + packageName + ".RequestWithMap')) " +
                 "define stream FooStream (stringValue string,intValue int,map object); " +
 
                 "define stream BarStream (stringValue string,intValue int,map object); ";
@@ -331,8 +255,7 @@ public class TestCaseOfProtobufSourceMapper {
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01',  " +
-                "receiver.url = 'grpc://localhost:2000/io.siddhi.extension.map.protobuf.grpc.MyService/testMap'," +
-                " @map(type='protobuf'," +
+                " @map(type='protobuf', class='" + packageName + ".RequestWithMap'," +
                 " @attributes(a = 'stringValue' ,b = 'intValue', c  ='map'))) " +
                 "define stream FooStream (a string,b int,c object); " +
 
@@ -379,151 +302,5 @@ public class TestCaseOfProtobufSourceMapper {
 
     }
 
-    @Test
-    public void protobufSourceMapperTestCaseWithoutReceiverUrl() throws Exception {
-        log.info("ProtobufSourceMapper 1");
-        String streams = "" +
-                "@App:name('TestSiddhiApp')" +
-                "@source(type='inMemory', topic='test01'," +
-                " @map(type='protobuf', class='io.siddhi.extension.map.protobuf.grpc.Request')) " +
-                "define stream FooStream (stringValue string, intValue int,longValue long,booleanValue bool," +
-                "floatValue float,doubleValue double); " +
-                "define stream BarStream (stringValue string, intValue int,longValue long,booleanValue bool," +
-                "floatValue float,doubleValue double); ";
-        String query = "" +
-                "from FooStream " +
-                "select * " +
-                "insert into BarStream; ";
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    switch (count.incrementAndGet()) {
-                        case 1:
-                            AssertJUnit.assertEquals("Test 01", event.getData(0));
-                            AssertJUnit.assertEquals(100, event.getData(1));
-                            AssertJUnit.assertEquals(1000000L, event.getData(2));
-                            AssertJUnit.assertEquals(false, event.getData(3));
-                            AssertJUnit.assertEquals(45.345f, event.getData(4));
-                            AssertJUnit.assertEquals(168.4567, event.getData(5));
-                            break;
-                        case 2:
-                            AssertJUnit.assertEquals("Test 02", event.getData(0));
-                            AssertJUnit.assertEquals(520, event.getData(1));
-                            AssertJUnit.assertEquals(3456445L, event.getData(2));
-                            AssertJUnit.assertEquals(true, event.getData(3));
-                            AssertJUnit.assertEquals(88.235f, event.getData(4));
-                            AssertJUnit.assertEquals(523.455, event.getData(5));
-                            break;
-                        default:
-                            AssertJUnit.fail();
-                    }
-                }
-            }
-        });
-        siddhiAppRuntime.start();
-        Request response1 = Request.newBuilder()
-                .setStringValue("Test 01")
-                .setIntValue(100)
-                .setBooleanValue(false)
-                .setDoubleValue(168.4567)
-                .setFloatValue(45.345f)
-                .setLongValue(1000000L)
-                .build();
-        Request response2 = Request.newBuilder()
-                .setStringValue("Test 02")
-                .setIntValue(520)
-                .setBooleanValue(true)
-                .setDoubleValue(523.455)
-                .setFloatValue(88.235f)
-                .setLongValue(3456445L)
-                .build();
-        InMemoryBroker.publish("test01", response1);
-        InMemoryBroker.publish("test01", response2);
-        SiddhiTestHelper.waitForEvents(waitTime, 2, count, timeout);
-        //assert event count
-        AssertJUnit.assertEquals("Number of events", 2, count.get());
-        siddhiAppRuntime.shutdown();
-
-    }
-
-    @Test
-    public void protobufSourceMapperTestCaseWithoutReceiverUrl2() throws Exception {
-        log.info("ProtobufSourceMapper 2");
-        String streams = "" +
-                "@App:name('TestSiddhiApp')" +
-                "@source(type='inMemory', topic='test01'," +
-                " @map(type='protobuf', class='io.siddhi.extension.map.protobuf.grpc.Request'," +
-                " @attributes(a = 'stringValue', b = 'intValue', c = 'longValue',d = 'booleanValue', e = " +
-                "'floatValue', f ='doubleValue'))) " +
-                "define stream FooStream (a string ,c long,b int, d bool,e float,f double); " +
-
-                "define stream BarStream (a string,c long,b int,d bool,e float,f double); ";
-        String query = "" +
-                "from FooStream " +
-                "select * " +
-                "insert into BarStream; ";
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
-
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    switch (count.incrementAndGet()) {
-                        case 1:
-                            AssertJUnit.assertEquals("Test 01", event.getData(0));
-                            AssertJUnit.assertEquals(100, event.getData(2));
-                            AssertJUnit.assertEquals(1000000L, event.getData(1));
-                            AssertJUnit.assertEquals(false, event.getData(3));
-                            AssertJUnit.assertEquals(45.345f, event.getData(4));
-                            AssertJUnit.assertEquals(168.4567, event.getData(5));
-                            break;
-                        case 2:
-                            AssertJUnit.assertEquals("Test 02", event.getData(0));
-                            AssertJUnit.assertEquals(520, event.getData(2));
-                            AssertJUnit.assertEquals(3456445L, event.getData(1));
-                            AssertJUnit.assertEquals(true, event.getData(3));
-                            AssertJUnit.assertEquals(88.235f, event.getData(4));
-                            AssertJUnit.assertEquals(523.455, event.getData(5));
-                            break;
-                        default:
-                            AssertJUnit.fail();
-                    }
-                }
-            }
-        });
-        siddhiAppRuntime.start();
-        Request response1 = Request.newBuilder()
-                .setStringValue("Test 01")
-                .setIntValue(100)
-                .setBooleanValue(false)
-                .setDoubleValue(168.4567)
-                .setFloatValue(45.345f)
-                .setLongValue(1000000L)
-                .build();
-        Request response2 = Request.newBuilder()
-                .setStringValue("Test 02")
-                .setIntValue(520)
-                .setBooleanValue(true)
-                .setDoubleValue(523.455)
-                .setFloatValue(88.235f)
-                .setLongValue(3456445L)
-                .build();
-        InMemoryBroker.publish("test01", response1);
-        InMemoryBroker.publish("test01", response2);
-        SiddhiTestHelper.waitForEvents(waitTime, 2, count, timeout);
-        //assert event count
-        AssertJUnit.assertEquals("Number of events", 2, count.get());
-        siddhiAppRuntime.shutdown();
-
-    }
 
 }

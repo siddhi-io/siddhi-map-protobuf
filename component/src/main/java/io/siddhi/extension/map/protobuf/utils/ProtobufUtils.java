@@ -32,27 +32,27 @@ import java.util.List;
  * Class to hold the static util methods needed
  */
 public class ProtobufUtils {
-    public static String getServiceName(String path, String siddhiAppname) {
+    public static String getServiceName(String path, String siddhiAppName, String streamID) {
         List<String> urlParts = new ArrayList<>(Arrays.asList(path.substring(1).split(GrpcConstants
                 .PORT_SERVICE_SEPARATOR)));
         if (urlParts.contains(GrpcConstants.EMPTY_STRING)) {
-            throw new SiddhiAppValidationException(siddhiAppname + ": Malformed URL. There should not be any empty " +
-                    "parts in the URL between two '/'");
+            throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Malformed URL. There should " +
+                    "not be any empty parts in the URL between two '/'");
         }
         if (urlParts.size() < 2) {
-            throw new SiddhiAppValidationException(siddhiAppname + ": Malformed URL. After port number at " +
-                    "least two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
+            throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Malformed URL. After port " +
+                    "number at least two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
                     "<ServiceName>/<MethodName>'");
         }
         return urlParts.get(GrpcConstants.PATH_SERVICE_NAME_POSITION);
     }
 
-    public static String getMethodName(String path, String siddhiAppName) {
+    public static String getMethodName(String path, String siddhiAppName, String streamID) {
         List<String> urlParts = new ArrayList<>(Arrays.asList(path.split(GrpcConstants.PORT_SERVICE_SEPARATOR)));
         urlParts.removeAll(Collections.singletonList(GrpcConstants.EMPTY_STRING));
         if (urlParts.size() < 2) {
-            throw new SiddhiAppValidationException(siddhiAppName + ": Malformed URL. After port number at least " +
-                    "two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
+            throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Malformed URL. After port " +
+                    "number at least two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
                     "<ServiceName>/<MethodName>'");
         }
         return urlParts.get(GrpcConstants.PATH_METHOD_NAME_POSITION);
@@ -106,8 +106,8 @@ public class ProtobufUtils {
         return variableNamesWithType.toString();
     }
 
-    public static List<String> getRPCmethodList(String serviceReference, String siddhiAppName) { //require full
-        // serviceName
+    public static List<String> getRPCmethodList(String serviceReference, String siddhiAppName, String streamID) {
+        //require full serviceName
         List<String> rpcMethodNameList = new ArrayList<>();
         String[] serviceReferenceArray = serviceReference.split("\\.");
         String serviceName = serviceReferenceArray[serviceReferenceArray.length - 1];
@@ -117,11 +117,10 @@ public class ProtobufUtils {
         try {
             methodsInStub = Class.forName(stubReference).getMethods(); //get all methods in stub Inner class
         } catch (ClassNotFoundException e) {
-            throw new SiddhiAppCreationException(siddhiAppName + ": " +
+            throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + ": " +
                     "Invalid service name provided in url, provided service name : '" + serviceName + "',"
                     + e.getMessage(), e);
         }
-        // ClassNotFound Exception will be thrown
         for (Method method : methodsInStub) {
             if (method.getDeclaringClass().getName().equals(stubReference)) { // check if the method belongs
                 // to blocking stub, other methods that does not belongs to blocking stub are not rpc methods

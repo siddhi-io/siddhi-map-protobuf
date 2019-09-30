@@ -31,10 +31,8 @@ google_analytics:
 markdown_extensions:
 - markdown.extensions.admonition
 pages:
-- Information: index.md
-- API Docs:
-  - latest: api/latest.md
-  - 1.0.0-beta: api/1.0.0-beta.md
-  - ? ''
-    : api/.md
-- License: license.md
+  - Information: index.md
+  - API Docs:
+      - latest: api/latest.md
+      - 1.0.0-beta: api/1.0.0-beta.md
+  - License: license.md
