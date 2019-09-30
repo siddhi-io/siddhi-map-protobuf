@@ -1,8 +1,8 @@
-site_name: Siddhi Map Protobuf
-site_description: Siddhi Map Protobuf Extension
-repo_name: Siddhi Map Protobuf
+site_name: Siddhi Mapper Protobuf
+site_description: Siddhi Mapper
+repo_name: Siddhi Mapper Protobuf
 repo_url: https://github.com/siddhi-io/siddhi-map-protobuf/
-edit_uri: null
+edit_uri: https://github.com/siddhi-io/siddhi-map-protobuf/blob/master/
 copyright: Siddhi - Documentation
 theme:
   name: material
@@ -12,27 +12,28 @@ theme:
     primary: teal
     accent: teal
 extra_css:
-- assets/stylesheets/extra.css
+  - assets/stylesheets/extra.css
 extra_javascript:
-- assets/javascripts/extra.js
+  - assets/javascripts/extra.js
 extra:
   social:
-  - type: github
-    link: https://github.com/siddhi-io/siddhi
-  - type: medium
-    link: https://medium.com/siddhi-io
-  - type: twitter
-    link: https://twitter.com/siddhi_io
-  - type: linkedin
-    link: https://www.linkedin.com/groups/13553064
+    - type: github
+      link: https://github.com/siddhi-io/siddhi
+    - type: medium
+      link: https://medium.com/siddhi-io
+    - type: twitter
+      link: https://twitter.com/siddhi_io
+    - type: linkedin
+      link: https://www.linkedin.com/groups/13553064
 google_analytics:
-- UA-103065-28
-- auto
+  - UA-103065-28
+  - auto
 markdown_extensions:
-- markdown.extensions.admonition
+  - markdown.extensions.admonition
 pages:
   - Information: index.md
   - API Docs:
       - latest: api/latest.md
-      - 1.0.0-beta: api/1.0.0-beta.md
+      - 1.0.0: api/1.0.0.md
   - License: license.md
+
