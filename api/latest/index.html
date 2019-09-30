@@ -10,7 +10,7 @@
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <meta name="description" content="Siddhi Map Protobuf Extension">
+        <meta name="description" content="Siddhi Mapper">
       
       
       
@@ -38,7 +38,7 @@
     
     
       
-        <title>latest - Siddhi Map Protobuf</title>
+        <title>latest - Siddhi Mapper Protobuf</title>
       
     
     
@@ -114,7 +114,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#api-docs-v100-beta" tabindex="1" class="md-skip">
+      <a href="#api-docs-v100" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -123,7 +123,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="../.." title="Siddhi Map Protobuf" class="md-header-nav__button md-logo">
+        <a href="../.." title="Siddhi Mapper Protobuf" class="md-header-nav__button md-logo">
           
             <img src="../../images/siddhi-logo.svg" width="24" height="24">
           
@@ -136,7 +136,7 @@
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             <span class="md-header-nav__topic">
-              Siddhi Map Protobuf
+              Siddhi Mapper Protobuf
             </span>
             <span class="md-header-nav__topic">
               
@@ -191,7 +191,7 @@
     </div>
   
   <div class="md-source__repository">
-    Siddhi Map Protobuf
+    Siddhi Mapper Protobuf
   </div>
 </a>
           </div>
@@ -215,12 +215,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="../.." title="Siddhi Map Protobuf" class="md-nav__button md-logo">
+    <a href="../.." title="Siddhi Mapper Protobuf" class="md-nav__button md-logo">
       
         <img src="../../images/siddhi-logo.svg" width="48" height="48">
       
     </a>
-    Siddhi Map Protobuf
+    Siddhi Mapper Protobuf
   </label>
   
     <div class="md-nav__source">
@@ -238,7 +238,7 @@
     </div>
   
   <div class="md-source__repository">
-    Siddhi Map Protobuf
+    Siddhi Mapper Protobuf
   </div>
 </a>
     </div>
@@ -367,6 +367,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../1.0.0/" title="1.0.0" class="md-nav__link">
+      1.0.0
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../1.0.0-beta/" title="1.0.0-beta" class="md-nav__link">
       1.0.0-beta
     </a>
@@ -478,18 +490,18 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/siddhi-io/siddhi-map-protobuf/edit/master/docs/api/latest.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/siddhi-io/siddhi-map-protobuf/blob/master/api/latest.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="api-docs-v100-beta">API Docs - v1.0.0-beta</h1>
+                <h1 id="api-docs-v100">API Docs - v1.0.0</h1>
 <div class="admonition info">
-<p class="admonition-title">Tested Siddhi Core version: <em><a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/">5.1.3</a></em></p>
+<p class="admonition-title">Tested Siddhi Core version: <em><a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/">5.1.5</a></em></p>
 <p>It could also support other Siddhi Core minor versions.</p>
 </div>
 <h2 id="sinkmapper">Sinkmapper</h2>
 <h3 id="protobuf-sink-mapper">protobuf <em><a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#sink-mapper">(Sink Mapper)</a></em></h3>
 <p><p></p>
-<p style="word-wrap: break-word;margin: 0;">This output mapper allows you to convert Events to protobuf messages before publishing them. To work with this mapper you have to add auto-generated protobuf classes to the project classpath. When you use this output mapper, you can either define stream attributes as the same names as the protobuf message attributes or you can use custom mapping to map stream definition attributes with the protobuf attributes..Please find the sample proto definition <a href="https://github.com/siddhi-io/siddhi-io/siddhi-map-protobuf/tree/master/component/src/main/resources/">here</a> </p>
+<p style="word-wrap: break-word;margin: 0;">This output mapper allows you to convert Events to protobuf messages before publishing them. To work with this mapper you have to add auto-generated protobuf classes to the project classpath. When you use this output mapper, you can either define stream attributes as the same names as the protobuf message attributes or you can use custom mapping to map stream definition attributes with the protobuf attributes..Please find the sample proto definition <a href="https://github.com/siddhi-io/siddhi-map-protobuf/tree/master/component/src/main/resources/sample.proto">here</a> </p>
 <p></p>
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
 <pre><code>@sink(..., @map(type=&quot;protobuf&quot;, class=&quot;&lt;STRING&gt;&quot;)
@@ -508,7 +520,7 @@
     <tr>
         <td style="vertical-align: top">class</td>
         <td style="vertical-align: top; word-wrap: break-word"><p style="word-wrap: break-word;margin: 0;">This specifies the class name of the protobuf message class, If sink type is grpc then it's not necessary to provide this parameter.</p></td>
-        <td style="vertical-align: top"> </td>
+        <td style="vertical-align: top">-</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -560,14 +572,14 @@ define stream BarStream (stringValue string, intValue int,longValue long,boolean
 
 <p></p>
 
-<p style="word-wrap: break-word;margin: 0;">The above definition will map BarStream values to 'org.wso2.grpc.test.Request'protobuf class type. If we did not provide the 'publisher.url' in the stream definition we have to provide the protobuf class name in the 'class' parameter inside @map.</p>
+<p style="word-wrap: break-word;margin: 0;">The above definition will map BarStream values to 'org.wso2.grpc.test.Request'protobuf class type. If sink type is not a grpc, sink is expecting to get the mapping protobuf class from the 'class' parameter in the @map extension</p>
 
 <p></p>
 
 <h2 id="sourcemapper">Sourcemapper</h2>
 <h3 id="protobuf-source-mapper">protobuf <em><a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#source-mapper">(Source Mapper)</a></em></h3>
 <p><p></p>
-<p style="word-wrap: break-word;margin: 0;">This input mapper allows you to convert protobuf messages into Events. To work with this input mapper you have to add auto-generated protobuf classes to the project classpath. When you use this input mapper, you can either define stream attributes as the same names as the protobuf message attributes or you can use custom mapping to map stream definition attributes with the protobuf attributes..Please find the sample proto definition <a href="https://github.com/siddhi-io/siddhi-io/siddhi-map-protobuf/tree/master/component/src/main/resources/">here</a> </p>
+<p style="word-wrap: break-word;margin: 0;">This input mapper allows you to convert protobuf messages into Events. To work with this input mapper you have to add auto-generated protobuf classes to the project classpath. When you use this input mapper, you can either define stream attributes as the same names as the protobuf message attributes or you can use custom mapping to map stream definition attributes with the protobuf attributes..Please find the sample proto definition <a href="https://github.com/siddhi-io/siddhi-map-protobuf/tree/master/component/src/main/resources/sample.proto">here</a> </p>
 <p></p>
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
 <pre><code>@source(..., @map(type=&quot;protobuf&quot;, class=&quot;&lt;STRING&gt;&quot;)
@@ -586,7 +598,7 @@ define stream BarStream (stringValue string, intValue int,longValue long,boolean
     <tr>
         <td style="vertical-align: top">class</td>
         <td style="vertical-align: top; word-wrap: break-word"><p style="word-wrap: break-word;margin: 0;">This specifies the class name of the protobuf message class, If sink type is grpc then it's not necessary to provide this field.</p></td>
-        <td style="vertical-align: top"> </td>
+        <td style="vertical-align: top">-</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -675,13 +687,13 @@ define stream FooStream (stringValue string, intValue int,longValue long,boolean
           </a>
         
         
-          <a href="../1.0.0-beta/" title="1.0.0-beta" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../1.0.0/" title="1.0.0" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                1.0.0-beta
+                1.0.0
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
