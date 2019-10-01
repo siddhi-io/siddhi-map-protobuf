@@ -231,15 +231,19 @@ public class ProtobufSourceMapper extends SourceMapper {
             }
             try {
                 messageObjectClass = Class.forName(userProvidedClassName);
-                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
-                // create an builder object of message class
-                messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
-                    InvocationTargetException e) {
+            } catch (ClassNotFoundException e) {
                 throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Invalid class name provided " +
                         "in the 'class' parameter, provided class name: " + userProvidedClassName + "," +
                         e.getMessage(), e);
             }
+        }
+        try {
+            Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+            // create an builder object of message class
+            messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Error while creating the builder" +
+                    " object" + "," + e.getMessage(), e);
         }
         initializeGetterMethods(streamDefinition, messageObjectClass, attributeMappingList);
     }
