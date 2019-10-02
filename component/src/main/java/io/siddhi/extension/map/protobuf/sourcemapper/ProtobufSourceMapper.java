@@ -321,9 +321,13 @@ public class ProtobufSourceMapper extends SourceMapper {
                     mappingPositionDataList.add(new MappingPositionData(position, getter));
                 } catch (NoSuchMethodException e) {
                     Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
+                    String attributeTypeName = attributeType.name(); // this will not throw null pointer exception
+                    if (attributeType == Attribute.Type.OBJECT) {
+                        attributeTypeName = "Map";
+                    }
                     throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + "Attribute name or type do " +
                             "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
-                            " " + attributeType + "\". Expected one of these attributes " +
+                            " " + attributeTypeName + "\". Expected one of these attributes " +
                             protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
                 }
             }
