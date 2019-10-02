@@ -178,7 +178,6 @@ public class ProtobufSinkMapper extends SinkMapper {
                 }
                 String methodReference = getMethodName(aURL.getPath(), siddhiAppName, streamID);
                 String fullQualifiedServiceReference = getServiceName(aURL.getPath(), siddhiAppName, streamID);
-                //if user provides the class parameter inside the @templateBuilderMap
                 try {
                     String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
                             methodReference.substring(1);
@@ -219,8 +218,8 @@ public class ProtobufSinkMapper extends SinkMapper {
                             e.getMessage(), e);
                 }
             } else {
-                throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": either " +
-                        "receiver.url or publisher.url should be given. But found neither");
+                throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": publisher.url should be " +
+                        "given.");
             }
         } else {
             log.info(siddhiAppName + ": Not a grpc sink, getting the protobuf class name from 'class' parameter");
@@ -338,7 +337,7 @@ public class ProtobufSinkMapper extends SinkMapper {
             if (attributeType == Attribute.Type.OBJECT) {
                 attributeTypeName = "Map";
             }
-            throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + "Attribute name or type does " +
+            throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + "Attribute name or type does " +
                     "not match with protobuf variable or type. provided attribute \"'" + attributeName +
                     "' : " + attributeTypeName + "\". Expected one of these attributes " +
                     protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
