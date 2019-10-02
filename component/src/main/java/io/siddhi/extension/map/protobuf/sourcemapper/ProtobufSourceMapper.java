@@ -207,11 +207,15 @@ public class ProtobufSourceMapper extends SourceMapper {
                             }
                         }
                     }
+                    Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                    // create an builder object of message class
+                    messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
                 } catch (ClassNotFoundException e) {
                     throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": " +
                             "Invalid service name provided in url, provided service name : '" +
                             fullQualifiedServiceReference + "'," + e.getMessage(), e);
-                } catch (NoSuchFieldException e) {
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                        NoSuchFieldException e) {
                     //same error as NoSuchMethod', because field is getting from the method name
                     throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Invalid method name " +
                             "provided in the url, provided method name : '" + methodReference + "' expected one of " +
@@ -231,19 +235,15 @@ public class ProtobufSourceMapper extends SourceMapper {
             }
             try {
                 messageObjectClass = Class.forName(userProvidedClassName);
-            } catch (ClassNotFoundException e) {
+                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                // create an builder object of message class
+                messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+                    InvocationTargetException e) {
                 throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Invalid class name provided " +
                         "in the 'class' parameter, provided class name: " + userProvidedClassName + "," +
                         e.getMessage(), e);
             }
-        }
-        try {
-            Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
-            // create an builder object of message class
-            messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Error while creating the builder" +
-                    " object" + "," + e.getMessage(), e);
         }
         initializeGetterMethods(streamDefinition, messageObjectClass, attributeMappingList);
     }
