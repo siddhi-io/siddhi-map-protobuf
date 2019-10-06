@@ -207,11 +207,15 @@ public class ProtobufSourceMapper extends SourceMapper {
                             }
                         }
                     }
+                    Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                    // create an builder object of message class
+                    messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
                 } catch (ClassNotFoundException e) {
                     throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": " +
                             "Invalid service name provided in url, provided service name : '" +
                             fullQualifiedServiceReference + "'," + e.getMessage(), e);
-                } catch (NoSuchFieldException e) {
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                        NoSuchFieldException e) {
                     //same error as NoSuchMethod', because field is getting from the method name
                     throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Invalid method name " +
                             "provided in the url, provided method name : '" + methodReference + "' expected one of " +
@@ -317,9 +321,13 @@ public class ProtobufSourceMapper extends SourceMapper {
                     mappingPositionDataList.add(new MappingPositionData(position, getter));
                 } catch (NoSuchMethodException e) {
                     Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
+                    String attributeTypeName = attributeType.name(); // this will not throw null pointer exception
+                    if (attributeType == Attribute.Type.OBJECT) {
+                        attributeTypeName = "Map";
+                    }
                     throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + "Attribute name or type do " +
                             "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
-                            " " + attributeType + "\". Expected one of these attributes " +
+                            " " + attributeTypeName + "\". Expected one of these attributes " +
                             protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
                 }
             }
