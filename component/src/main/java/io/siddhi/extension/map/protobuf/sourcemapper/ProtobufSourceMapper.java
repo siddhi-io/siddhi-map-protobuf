@@ -142,6 +142,7 @@ public class ProtobufSourceMapper extends SourceMapper {
     private int size;
     private String siddhiAppName;
     private String streamID;
+    private Class messageObjectClass;
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
@@ -156,8 +157,8 @@ public class ProtobufSourceMapper extends SourceMapper {
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        Class messageObjectClass;
-        if (sourceType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+
+        if (sourceType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
             if (GrpcConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType)
                     && attributeMappingList.size() == 0) {
                 throw new SiddhiAppCreationException("No mapping found at @Map, mapping should be available to " +
@@ -170,7 +171,7 @@ public class ProtobufSourceMapper extends SourceMapper {
             if (url != null) {
                 URL aURL;
                 try {
-                    if (!url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                    if (!url.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
                         throw new SiddhiAppValidationException(siddhiAppName + ":" + streamID + ": The url must " +
                                 "begin with \"" + GrpcConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
                     }
@@ -197,8 +198,9 @@ public class ProtobufSourceMapper extends SourceMapper {
                                 .getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
                     }
                     if (userProvidedClassName != null) {
-                        if (url.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { // only if sink is a grpc type, check
-                            // for both user provided class name and the required class name
+                        if (url.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                            /* only if sink is a grpc type, check for both user provided class name and the required
+                             class name*/
                             if (!messageObjectClass.getName().equals(userProvidedClassName)) {
                                 throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID +
                                         ": provided class name does not match with the original mapping class, " +
@@ -257,6 +259,16 @@ public class ProtobufSourceMapper extends SourceMapper {
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Object[] objectArray = new Object[this.size];
+        if (!sourceType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+            try {
+                eventObject = messageObjectClass.getDeclaredMethod(GrpcConstants.PARSE_FROM_NAME, byte[].class)
+                        .invoke(messageObjectClass, eventObject);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + " error while creating the " +
+                        "protobuf message in " + sourceType + " source, expect the protobuf message as a byte array, "
+                        + e.getMessage(), e);
+            }
+        }
         for (MappingPositionData mappingPositionData : mappingPositionDataList) {
             Object value;
             try {

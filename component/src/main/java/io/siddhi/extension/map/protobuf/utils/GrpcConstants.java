@@ -36,6 +36,8 @@ public class GrpcConstants {
     public static final String GRPC_PROTOCOL_NAME_UPPERCAMELCASE = "Grpc";
     public static final String DOLLAR_SIGN = "$";
     public static final String NEW_BUILDER_NAME = "newBuilder";
+    public static final String PARSE_FROM_NAME = "parseFrom";
+    public static final String TO_BYTE_ARRAY = "toByteArray";
     public static final String SETTER = "set";
     public static final String GETTER = "get";
     public static final String MAP_NAME = "Map";

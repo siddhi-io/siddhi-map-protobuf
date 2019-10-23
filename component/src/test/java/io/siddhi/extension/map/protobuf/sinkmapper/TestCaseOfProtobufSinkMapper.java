@@ -50,7 +50,15 @@ public class TestCaseOfProtobufSinkMapper {
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                AssertJUnit.assertEquals(Request.class, o.getClass());
+                Request request = Request.newBuilder()
+                        .setBooleanValue(true)
+                        .setStringValue("Test 01")
+                        .setDoubleValue(34.5668)
+                        .setFloatValue(522.7586f)
+                        .setIntValue(60)
+                        .setLongValue(10000L)
+                        .build();
+                AssertJUnit.assertEquals(request.toByteArray(), (byte[]) o);
             }
 
             @Override
@@ -96,7 +104,15 @@ public class TestCaseOfProtobufSinkMapper {
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                AssertJUnit.assertEquals(Request.class, o.getClass());
+                Request request = Request.newBuilder()
+                        .setBooleanValue(true)
+                        .setStringValue("Test 01")
+                        .setDoubleValue(34.5668 * 2)
+                        .setFloatValue(522.7586f * 2)
+                        .setIntValue(60 * 2)
+                        .setLongValue(10000L * 2)
+                        .build();
+                AssertJUnit.assertEquals(request.toByteArray(), (byte[]) o);
             }
 
             @Override
@@ -142,7 +158,15 @@ public class TestCaseOfProtobufSinkMapper {
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                AssertJUnit.assertEquals(Request.class, o.getClass());
+                Request request = Request.newBuilder()
+                        .setBooleanValue(true)
+                        .setStringValue("Test 01")
+                        .setDoubleValue(34.5668 * 2)
+                        .setFloatValue(522.7586f * 2)
+                        .setIntValue(60 * 2)
+                        .setLongValue(10000L * 2)
+                        .build();
+                AssertJUnit.assertEquals(request.toByteArray(), (byte[]) o);
             }
 
             @Override
@@ -184,10 +208,17 @@ public class TestCaseOfProtobufSinkMapper {
     @Test
     public void protobuSinkMapperTestCase4() throws InterruptedException {
         log.info("ProtobufSinkMapperTestCase 4");
+        Map<String, String> map1 = new HashMap<>();
+        map1.put("0001", "Barry Allen");
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                AssertJUnit.assertEquals(RequestWithMap.class, o.getClass());
+                RequestWithMap requestWithMap = RequestWithMap.newBuilder()
+                        .setIntValue(60000)
+                        .setStringValue("Test 01")
+                        .putAllMap(map1)
+                        .build();
+                AssertJUnit.assertEquals(requestWithMap.toByteArray(), (byte[]) o);
 
             }
 
@@ -219,8 +250,6 @@ public class TestCaseOfProtobufSinkMapper {
         });
         InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
         siddhiAppRuntime.start();
-        Map<String, String> map1 = new HashMap<>();
-        map1.put("0001", "Barry Allen");
         Object[] data1 = {"Test 01", 60000, map1};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
@@ -230,12 +259,17 @@ public class TestCaseOfProtobufSinkMapper {
     @Test
     public void protobuSinkMapperTestCase5() throws InterruptedException {
         log.info("ProtobufSinkMapperTestCase 5");
-
+        Map<String, String> map1 = new HashMap<>();
+        map1.put("0001", "Barry Allen");
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                log.info("Request :" + o);
-                AssertJUnit.assertEquals(RequestWithMap.class, o.getClass());
+                RequestWithMap requestWithMap = RequestWithMap.newBuilder()
+                        .setIntValue(60000)
+                        .setStringValue("Test 01")
+                        .putAllMap(map1)
+                        .build();
+                AssertJUnit.assertEquals(requestWithMap.toByteArray(), (byte[]) o);
 
             }
 
@@ -265,8 +299,6 @@ public class TestCaseOfProtobufSinkMapper {
         });
         InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
         siddhiAppRuntime.start();
-        Map<String, String> map1 = new HashMap<>();
-        map1.put("0001", "Barry Allen");
         Object[] data1 = {"Test 01", 60000, map1};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
