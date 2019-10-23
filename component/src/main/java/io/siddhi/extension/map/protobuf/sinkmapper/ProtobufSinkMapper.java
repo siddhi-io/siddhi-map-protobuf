@@ -15,6 +15,7 @@
  */
 package io.siddhi.extension.map.protobuf.sinkmapper;
 
+import com.google.protobuf.AbstractMessageLite;
 import com.google.protobuf.GeneratedMessageV3;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
@@ -277,7 +278,16 @@ public class ProtobufSinkMapper extends SinkMapper {
             Method buildMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.BUILD_METHOD);
             Object messageObject = buildMethod.invoke(messageBuilderObject); //get the message object by invoking
             // build() method
-            sinkListener.publish(messageObject);
+            if (sinkType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                sinkListener.publish(messageObject);
+                return;
+            } else {
+                byte[] messageObjectByteArray = (byte[]) AbstractMessageLite.class
+                        .getDeclaredMethod(GrpcConstants.TO_BYTE_ARRAY).invoke(messageObject);
+                sinkListener.publish(messageObjectByteArray);
+            }
+
+
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " Unknown error occurred during " +
                     "runtime," + e.getMessage(), e);

@@ -142,6 +142,7 @@ public class ProtobufSourceMapper extends SourceMapper {
     private int size;
     private String siddhiAppName;
     private String streamID;
+    private Class messageObjectClass;
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
@@ -156,7 +157,7 @@ public class ProtobufSourceMapper extends SourceMapper {
         if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
             userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
         }
-        Class messageObjectClass;
+
         if (sourceType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
             if (GrpcConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType)
                     && attributeMappingList.size() == 0) {
@@ -257,6 +258,16 @@ public class ProtobufSourceMapper extends SourceMapper {
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Object[] objectArray = new Object[this.size];
+        if (!sourceType.startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+            try {
+                eventObject = messageObjectClass.getDeclaredMethod(GrpcConstants.PARSE_FROM_NAME, byte[].class)
+                        .invoke(messageObjectClass, eventObject);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + " error while creating the " +
+                        "protobuf" +
+                        "message, " + e.getMessage(), e);
+            }
+        }
         for (MappingPositionData mappingPositionData : mappingPositionDataList) {
             Object value;
             try {

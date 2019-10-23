@@ -112,8 +112,8 @@ public class TestCaseOfProtobufSourceMapper {
                 .setFloatValue(88.235f)
                 .setLongValue(3456445L)
                 .build();
-        InMemoryBroker.publish("test01", response1);
-        InMemoryBroker.publish("test01", response2);
+        InMemoryBroker.publish("test01", response1.toByteArray());
+        InMemoryBroker.publish("test01", response2.toByteArray());
         SiddhiTestHelper.waitForEvents(waitTime, 2, count, timeout);
         //assert event count
         AssertJUnit.assertEquals("Number of events", 2, count.get());
@@ -186,8 +186,8 @@ public class TestCaseOfProtobufSourceMapper {
                 .setFloatValue(88.235f)
                 .setLongValue(3456445L)
                 .build();
-        InMemoryBroker.publish("test01", response1);
-        InMemoryBroker.publish("test01", response2);
+        InMemoryBroker.publish("test01", response1.toByteArray());
+        InMemoryBroker.publish("test01", response2.toByteArray());
         SiddhiTestHelper.waitForEvents(waitTime, 2, count, timeout);
         //assert event count
         AssertJUnit.assertEquals("Number of events", 2, count.get());
@@ -242,7 +242,7 @@ public class TestCaseOfProtobufSourceMapper {
                 .putMap("Key 01", "Value 01")
                 .putMap("Key 02", "Value 02")
                 .build();
-        InMemoryBroker.publish("test01", response1);
+        InMemoryBroker.publish("test01", response1.toByteArray());
         SiddhiTestHelper.waitForEvents(waitTime, 1, count, timeout);
         //assert event count
         AssertJUnit.assertEquals("Number of events", 1, count.get());
@@ -294,7 +294,7 @@ public class TestCaseOfProtobufSourceMapper {
                 .putMap("Key 01", "Value 01")
                 .putMap("Key 02", "Value 02")
                 .build();
-        InMemoryBroker.publish("test01", response1);
+        InMemoryBroker.publish("test01", response1.toByteArray());
         SiddhiTestHelper.waitForEvents(waitTime, 1, count, timeout);
         //assert event count
         AssertJUnit.assertEquals("Number of events", 1, count.get());

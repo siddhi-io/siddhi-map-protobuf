@@ -225,6 +225,6 @@
         <testng.version>6.11</testng.version>
         <jacoco.plugin.version>0.7.9</jacoco.plugin.version>
         <io.grpc.version>1.22.1</io.grpc.version>
-        <com.google.protobuf.version>3.4.0</com.google.protobuf.version>
+        <com.google.protobuf.version>3.9.1</com.google.protobuf.version>
     </properties>
 </project>
