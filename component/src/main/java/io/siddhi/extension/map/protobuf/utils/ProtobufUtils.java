@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Class to hold the static util methods needed
+ * Class to hold the static util methods needed.
  */
 public class ProtobufUtils {
     public static String getServiceName(String path, String siddhiAppName, String streamID) {

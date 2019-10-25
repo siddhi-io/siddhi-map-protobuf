@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * TestCases for protobuf-sink-mapper.
+ */
 public class TestCaseOfProtobufSinkMapper {
     private static final Logger log = Logger.getLogger(TestCaseOfProtobufSinkMapper.class);
     private AtomicInteger count = new AtomicInteger();
