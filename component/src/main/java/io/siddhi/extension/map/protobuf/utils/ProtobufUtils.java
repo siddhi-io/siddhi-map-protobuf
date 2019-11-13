@@ -96,6 +96,8 @@ public class ProtobufUtils {
                 // as Object
             } else if (type.equals("MapField")) {
                 type = "Map";
+            } else if(List.class.isAssignableFrom(field.getType())) {
+                type = "List";
             }
             variableNamesWithType.append("\"'").append(name).append("' : ").append(type).append("\" , ");
 
@@ -128,5 +130,9 @@ public class ProtobufUtils {
             }
         }
         return rpcMethodNameList;
+    }
+
+    public static String toLowerCamelCase(String attributeName) {
+       return attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
     }
 }

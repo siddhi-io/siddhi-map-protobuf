@@ -41,6 +41,7 @@ public class GrpcConstants {
     public static final String SETTER = "set";
     public static final String GETTER = "get";
     public static final String MAP_NAME = "Map";
+    public static final String LIST_NAME = "List";
     public static final String BUILD_METHOD = "build";
     public static final String PUTALL_METHOD = "putAll";
     public static final String METHOD_NAME = "Method";
