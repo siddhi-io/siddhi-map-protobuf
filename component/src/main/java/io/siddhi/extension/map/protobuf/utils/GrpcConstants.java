@@ -44,6 +44,7 @@ public class GrpcConstants {
     public static final String LIST_NAME = "List";
     public static final String BUILD_METHOD = "build";
     public static final String PUTALL_METHOD = "putAll";
+    public static final String ADDALL_METHOD = "addAll";
     public static final String METHOD_NAME = "Method";
     public static final int PATH_SERVICE_NAME_POSITION = 0;
     public static final int PATH_METHOD_NAME_POSITION = 1;

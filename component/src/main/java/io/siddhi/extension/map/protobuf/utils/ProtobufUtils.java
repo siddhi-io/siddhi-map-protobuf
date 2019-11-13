@@ -104,7 +104,7 @@ public class ProtobufUtils {
         }
         variableNamesWithType = new StringBuilder(variableNamesWithType.substring(0,
                 variableNamesWithType.length() - 2));
-        variableNamesWithType.append(" }");
+        variableNamesWithType.append("}");
         return variableNamesWithType.toString();
     }
 
