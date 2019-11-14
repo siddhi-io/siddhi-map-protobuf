@@ -9,7 +9,7 @@ package io.siddhi.extension.map.protobuf.grpc;
 public  final class RequestWithMap extends
     com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:RequestWithMap)
-    RequestWithMapOrBuilder {
+        RequestWithMapOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use RequestWithMap.newBuilder() to construct.
   private RequestWithMap(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
@@ -494,7 +494,7 @@ private static final long serialVersionUID = 0L;
 
     @Override
     public io.siddhi.extension.map.protobuf.grpc.RequestWithMap getDefaultInstanceForType() {
-      return getDefaultInstance();
+      return io.siddhi.extension.map.protobuf.grpc.RequestWithMap.getDefaultInstance();
     }
 
     @Override
@@ -563,7 +563,7 @@ private static final long serialVersionUID = 0L;
     }
 
     public Builder mergeFrom(io.siddhi.extension.map.protobuf.grpc.RequestWithMap other) {
-      if (other == getDefaultInstance()) return this;
+      if (other == io.siddhi.extension.map.protobuf.grpc.RequestWithMap.getDefaultInstance()) return this;
       if (!other.getStringValue().isEmpty()) {
         stringValue_ = other.stringValue_;
         onChanged();

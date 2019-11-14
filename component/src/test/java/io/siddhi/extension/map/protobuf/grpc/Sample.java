@@ -44,6 +44,16 @@ public final class Sample {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ResponseWithMap_MapEntry_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_RequestWithList_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_RequestWithList_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ResponseWithList_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ResponseWithList_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -67,12 +77,12 @@ public final class Sample {
       "e\030\002 \001(\t:\0028\001\"\214\001\n\017ResponseWithMap\022\023\n\013strin" +
       "gValue\030\001 \001(\t\022\020\n\010intValue\030\002 \001(\005\022&\n\003map\030\003 " +
       "\003(\0132\031.ResponseWithMap.MapEntry\032*\n\010MapEnt" +
-      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\0012\203\001\n\tM" +
-      "yService\022(\n\004send\022\010.Request\032\026.google.prot" +
-      "obuf.Empty\022\036\n\007process\022\010.Request\032\t.Respon" +
-      "se\022,\n\007testMap\022\017.RequestWithMap\032\020.Respons" +
-      "eWithMapB)\n%io.siddhi.extension.map.prot" +
-      "obuf.grpcP\001b\006proto3"
+      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"]\n\017Re" +
+      "questWithList\022\023\n\013stringValue\030\001 \001(\t\022\020\n\010in" +
+      "tValue\030\002 \001(\005\022\022\n\nstringList\030\003 \003(\t\022\017\n\007intL" +
+      "ist\030\004 \003(\005\"7\n\020ResponseWithList\022\022\n\nstringL" +
+      "ist\030\001 \003(\t\022\017\n\007intList\030\002 \003(\005B)\n%io.siddhi." +
+      "extension.map.protobuf.grpcP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -123,6 +133,18 @@ public final class Sample {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResponseWithMap_MapEntry_descriptor,
         new String[] { "Key", "Value", });
+    internal_static_RequestWithList_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_RequestWithList_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_RequestWithList_descriptor,
+        new String[] { "StringValue", "IntValue", "StringList", "IntList", });
+    internal_static_ResponseWithList_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_ResponseWithList_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ResponseWithList_descriptor,
+        new String[] { "StringList", "IntList", });
     com.google.protobuf.EmptyProto.getDescriptor();
   }
 

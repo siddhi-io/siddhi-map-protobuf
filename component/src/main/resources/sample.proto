@@ -56,12 +56,18 @@ message ResponseWithMap
     string stringValue =1;
     int32 intValue = 2;
     map<string,string> map = 3;
-
 }
 
+message RequestWithList
+{
+    string stringValue = 1;
+    int32 intValue = 2;
+    repeated string stringList = 3;
+    repeated int32 intList = 4;
+}
 
-service MyService {
-    rpc send (Request) returns (google.protobuf.Empty);
-    rpc process (Request) returns (Response);
-    rpc testMap (RequestWithMap) returns (ResponseWithMap);
+message ResponseWithList
+{
+    repeated string stringList = 1;
+    repeated int32 intList = 2;
 }
