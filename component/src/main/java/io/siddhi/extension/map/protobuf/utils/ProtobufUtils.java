@@ -96,7 +96,7 @@ public class ProtobufUtils {
                 // as Object
             } else if (type.equals("MapField")) {
                 type = "Map";
-            } else if(List.class.isAssignableFrom(field.getType())) {
+            } else if (List.class.isAssignableFrom(field.getType())) {
                 type = "List";
             }
             variableNamesWithType.append("\"'").append(name).append("' : ").append(type).append("\" , ");

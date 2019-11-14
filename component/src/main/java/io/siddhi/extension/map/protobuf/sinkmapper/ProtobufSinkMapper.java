@@ -331,7 +331,7 @@ public class ProtobufSinkMapper extends SinkMapper {
     private Method setSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
             NoSuchMethodException {
         if (attributeType == Attribute.Type.OBJECT) {
-            if(List.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
+            if (List.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
                     attributeName + "_").getType())) { // check if list or not
                 return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants
                         .ADDALL_METHOD + toLowerCamelCase(attributeName), Iterable.class);
