@@ -190,7 +190,8 @@ public class ProtobufSourceMapper extends SourceMapper {
                             methodReference.substring(1);
                     Field methodDescriptor = Class.forName(fullQualifiedServiceReference +
                             ProtobufConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
-                            (ProtobufConstants.GETTER + capitalizedFirstLetterMethodName + ProtobufConstants.METHOD_NAME);
+                            (ProtobufConstants.GETTER + capitalizedFirstLetterMethodName +
+                                    ProtobufConstants.METHOD_NAME);
                     ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
                     if (ProtobufConstants.GRPC_CALL_RESPONSE_SOURCE_NAME.equalsIgnoreCase(sourceType)) {
                         messageObjectClass = (Class) parameterizedType
@@ -211,8 +212,8 @@ public class ProtobufSourceMapper extends SourceMapper {
                             }
                         }
                     }
-                    Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME); //to
-                    // create an builder object of message class
+                    Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME);
+                    //to create an builder object of message class
                     messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
                 } catch (ClassNotFoundException e) {
                     throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": " +
