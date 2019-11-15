@@ -286,9 +286,8 @@ public class ProtobufSinkMapper extends SinkMapper {
                 byte[] messageObjectByteArray = (byte[]) AbstractMessageLite.class
                         .getDeclaredMethod(GrpcConstants.TO_BYTE_ARRAY).invoke(messageObject);
                 sinkListener.publish(messageObjectByteArray);
+                clearMessageBuilderObject();
             }
-
-
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " Unknown error occurred during " +
                     "runtime," + e.getMessage(), e);
@@ -346,6 +345,15 @@ public class ProtobufSinkMapper extends SinkMapper {
         } else {
             return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + toLowerCamelCase(
                     attributeName), ProtobufUtils.getDataType(attributeType));
+        }
+    }
+
+    private void clearMessageBuilderObject() {
+        try {
+            messageBuilderObject.getClass().getDeclaredMethod("clear").invoke(messageBuilderObject);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " : Unable to find 'clear()' " +
+                    "method." , e);
         }
     }
 

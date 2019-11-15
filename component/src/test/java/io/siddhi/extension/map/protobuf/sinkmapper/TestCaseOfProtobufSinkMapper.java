@@ -307,6 +307,7 @@ public class TestCaseOfProtobufSinkMapper {
         siddhiAppRuntime.start();
         Object[] data1 = {60, "Test 01", stringList, integerList};
         stockStream.send(data1);
+        stockStream.send(data1);
         siddhiAppRuntime.shutdown();
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);
