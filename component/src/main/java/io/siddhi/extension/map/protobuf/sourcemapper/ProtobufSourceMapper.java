@@ -333,12 +333,12 @@ public class ProtobufSourceMapper extends SourceMapper {
                     .getType())) {
                 return messageObjectClass.getDeclaredMethod(
                         GrpcConstants.GETTER + toLowerCamelCase(attributeName) + GrpcConstants.MAP_NAME);
-            } else if(GeneratedMessageV3.class.isAssignableFrom(messageObjectClass.getDeclaredField(
+            } else if (GeneratedMessageV3.class.isAssignableFrom(messageObjectClass.getDeclaredField(
                     attributeName + "_")
                     .getType())) {
                 return messageObjectClass.getDeclaredMethod(GrpcConstants.GETTER + toLowerCamelCase(
                         attributeName));
-            }else {
+            } else {
                 throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
                         " 'another message type' with 'object' data type");
             }

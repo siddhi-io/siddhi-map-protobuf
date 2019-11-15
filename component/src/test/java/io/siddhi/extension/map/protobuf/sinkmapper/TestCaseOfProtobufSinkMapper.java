@@ -22,6 +22,7 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.stream.output.StreamCallback;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.transport.InMemoryBroker;
+import io.siddhi.extension.map.protobuf.grpc.OtherMessageTypes;
 import io.siddhi.extension.map.protobuf.grpc.Request;
 import io.siddhi.extension.map.protobuf.grpc.RequestWithList;
 import io.siddhi.extension.map.protobuf.grpc.RequestWithMap;
@@ -256,7 +257,6 @@ public class TestCaseOfProtobufSinkMapper {
 
     @Test
     public void protobuSinkMapperTestCaseWithLists() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 6");
         List<String> stringList = new ArrayList<>();
         stringList.add("Test1");
         stringList.add("Test2");
@@ -312,9 +312,9 @@ public class TestCaseOfProtobufSinkMapper {
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);
     }
+
     @Test
     public void protobuSinkMapperTestCaseWithListsAndKeyValue() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 7");
         List<String> stringList = new ArrayList<>();
         stringList.add("Test1");
         stringList.add("Test2");
@@ -363,6 +363,191 @@ public class TestCaseOfProtobufSinkMapper {
         InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
         siddhiAppRuntime.start();
         Object[] data1 = {stringList, integerList};
+        stockStream.send(data1);
+        siddhiAppRuntime.shutdown();
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriber);
+    }
+
+    @Test
+    public void protobuSinkMapperTestCaseWithOtherMessageTypes() throws InterruptedException {
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Test1");
+        stringList.add("Test2");
+        stringList.add("Test3");
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(100);
+        integerList.add(200);
+        integerList.add(300);
+        Request request = Request.newBuilder()
+                .setBooleanValue(true)
+                .setStringValue("Test 1")
+                .setIntValue(1000)
+                .setDoubleValue(1000.6745)
+                .setFloatValue(1022.43f)
+                .setLongValue(10000000L)
+                .build();
+        Map<String, String> map = new HashMap<>();
+        map.put("key 01", "Value 01");
+        map.put("key 02", "Value 02");
+        RequestWithMap requestWithMap = RequestWithMap.newBuilder()
+                .setIntValue(2000)
+                .setStringValue("Test 2")
+                .putAllMap(map)
+                .build();
+        RequestWithList requestWithList = RequestWithList.newBuilder()
+                .setStringValue("Barry Allen")
+                .setIntValue(100)
+                .addAllIntList(integerList)
+                .addAllStringList(stringList)
+                .build();
+        List<Request> requests = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Request req = Request.newBuilder()
+                    .setBooleanValue(true)
+                    .setStringValue("Test " + i)
+                    .setIntValue(1000 + i)
+                    .setDoubleValue(1000.6745 + i)
+                    .setFloatValue(1022.43f + i)
+                    .setLongValue(10000000L + i)
+                    .build();
+            requests.add(req);
+        }
+        InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object o) {
+                OtherMessageTypes otherMessageTypes = OtherMessageTypes.newBuilder()
+                        .setRequest(request)
+                        .setRequestWithMap(requestWithMap)
+                        .setRequestWithList(requestWithList)
+                        .addAllRequestList(requests)
+                        .build();
+                AssertJUnit.assertEquals(otherMessageTypes.toByteArray(), (byte[]) o);
+            }
+
+            @Override
+            public String getTopic() {
+                return "test01";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriber);
+        String streams = "" +
+                "@App:name('TestSiddhiApp1')" +
+                "define stream FooStream (request object, requestWithMap object, requestWithList object, " +
+                "requestList object); " +
+                "@sink(type='inMemory', topic='test01'," +
+                "@map(type='protobuf', class='" + packageName + ".OtherMessageTypes')) " +
+                "define stream BarStream (request object, requestWithMap object, requestWithList object, " +
+                "requestList object); ";
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(toMap(events));
+            }
+        });
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.start();
+        Object[] data1 = {request, requestWithMap, requestWithList, requests};
+        stockStream.send(data1);
+        siddhiAppRuntime.shutdown();
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriber);
+    }
+
+    @Test
+    public void protobuSinkMapperTestCaseWithOtherMessageTypesAndKeyValue() throws InterruptedException {
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Test1");
+        stringList.add("Test2");
+        stringList.add("Test3");
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(100);
+        integerList.add(200);
+        integerList.add(300);
+        Request request = Request.newBuilder()
+                .setBooleanValue(true)
+                .setStringValue("Test 1")
+                .setIntValue(1000)
+                .setDoubleValue(1000.6745)
+                .setFloatValue(1022.43f)
+                .setLongValue(10000000L)
+                .build();
+        Map<String, String> map = new HashMap<>();
+        map.put("key 01", "Value 01");
+        map.put("key 02", "Value 02");
+        RequestWithMap requestWithMap = RequestWithMap.newBuilder()
+                .setIntValue(2000)
+                .setStringValue("Test 2")
+                .putAllMap(map)
+                .build();
+        RequestWithList requestWithList = RequestWithList.newBuilder()
+                .setStringValue("Barry Allen")
+                .setIntValue(100)
+                .addAllIntList(integerList)
+                .addAllStringList(stringList)
+                .build();
+        List<Request> requests = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Request req = Request.newBuilder()
+                    .setBooleanValue(true)
+                    .setStringValue("Test " + i)
+                    .setIntValue(1000 + i)
+                    .setDoubleValue(1000.6745 + i)
+                    .setFloatValue(1022.43f + i)
+                    .setLongValue(10000000L + i)
+                    .build();
+            requests.add(req);
+        }
+        InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object o) {
+                OtherMessageTypes otherMessageTypes = OtherMessageTypes.newBuilder()
+                        .setRequest(request)
+                        .setRequestWithMap(requestWithMap)
+                        .setRequestWithList(requestWithList)
+                        .addAllRequestList(requests)
+                        .build();
+                AssertJUnit.assertEquals(otherMessageTypes.toByteArray(), (byte[]) o);
+            }
+
+            @Override
+            public String getTopic() {
+                return "test01";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriber);
+        String streams = "" +
+                "@App:name('TestSiddhiApp1')" +
+                "define stream FooStream (a object, b object, c object, d object); " +
+                "@sink(type='inMemory', topic='test01'," +
+                "@map(type='protobuf', class='" + packageName + ".OtherMessageTypes', " +
+                "@payload(request='a', requestWithMap='b',requestWithList='c', requestList='d'))) " +
+                "define stream BarStream (a object, b object, c object, d object); ";
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(toMap(events));
+            }
+        });
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.start();
+        Object[] data1 = {request, requestWithMap, requestWithList, requests};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
         //unsubscribe from "inMemory" broker per topic

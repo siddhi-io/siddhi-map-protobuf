@@ -54,6 +54,11 @@ public final class Sample {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ResponseWithList_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_OtherMessageTypes_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_OtherMessageTypes_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -63,26 +68,30 @@ public final class Sample {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\014sample.proto\032\033google/protobuf/empty.pr" +
-      "oto\"\202\001\n\007Request\022\023\n\013stringValue\030\001 \001(\t\022\020\n\010" +
-      "intValue\030\002 \001(\005\022\021\n\tlongValue\030\003 \001(\003\022\024\n\014boo" +
-      "leanValue\030\004 \001(\010\022\022\n\nfloatValue\030\005 \001(\002\022\023\n\013d" +
-      "oubleValue\030\006 \001(\001\"\203\001\n\010Response\022\023\n\013stringV" +
-      "alue\030\001 \001(\t\022\020\n\010intValue\030\002 \001(\005\022\021\n\tLongValu" +
-      "e\030\003 \001(\003\022\024\n\014booleanValue\030\004 \001(\010\022\022\n\nfloatVa" +
-      "lue\030\005 \001(\002\022\023\n\013doubleValue\030\006 \001(\001\"\212\001\n\016Reque" +
-      "stWithMap\022\023\n\013stringValue\030\001 \001(\t\022\020\n\010intVal" +
-      "ue\030\002 \001(\005\022%\n\003map\030\003 \003(\0132\030.RequestWithMap.M" +
-      "apEntry\032*\n\010MapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005valu" +
-      "e\030\002 \001(\t:\0028\001\"\214\001\n\017ResponseWithMap\022\023\n\013strin" +
-      "gValue\030\001 \001(\t\022\020\n\010intValue\030\002 \001(\005\022&\n\003map\030\003 " +
-      "\003(\0132\031.ResponseWithMap.MapEntry\032*\n\010MapEnt" +
-      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"]\n\017Re" +
-      "questWithList\022\023\n\013stringValue\030\001 \001(\t\022\020\n\010in" +
-      "tValue\030\002 \001(\005\022\022\n\nstringList\030\003 \003(\t\022\017\n\007intL" +
-      "ist\030\004 \003(\005\"7\n\020ResponseWithList\022\022\n\nstringL" +
-      "ist\030\001 \003(\t\022\017\n\007intList\030\002 \003(\005B)\n%io.siddhi." +
-      "extension.map.protobuf.grpcP\001b\006proto3"
+      "\n\014sample.proto\"\202\001\n\007Request\022\023\n\013stringValu" +
+      "e\030\001 \001(\t\022\020\n\010intValue\030\002 \001(\005\022\021\n\tlongValue\030\003" +
+      " \001(\003\022\024\n\014booleanValue\030\004 \001(\010\022\022\n\nfloatValue" +
+      "\030\005 \001(\002\022\023\n\013doubleValue\030\006 \001(\001\"\203\001\n\010Response" +
+      "\022\023\n\013stringValue\030\001 \001(\t\022\020\n\010intValue\030\002 \001(\005\022" +
+      "\021\n\tLongValue\030\003 \001(\003\022\024\n\014booleanValue\030\004 \001(\010" +
+      "\022\022\n\nfloatValue\030\005 \001(\002\022\023\n\013doubleValue\030\006 \001(" +
+      "\001\"\212\001\n\016RequestWithMap\022\023\n\013stringValue\030\001 \001(" +
+      "\t\022\020\n\010intValue\030\002 \001(\005\022%\n\003map\030\003 \003(\0132\030.Reque" +
+      "stWithMap.MapEntry\032*\n\010MapEntry\022\013\n\003key\030\001 " +
+      "\001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\214\001\n\017ResponseWithM" +
+      "ap\022\023\n\013stringValue\030\001 \001(\t\022\020\n\010intValue\030\002 \001(" +
+      "\005\022&\n\003map\030\003 \003(\0132\031.ResponseWithMap.MapEntr" +
+      "y\032*\n\010MapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(" +
+      "\t:\0028\001\"]\n\017RequestWithList\022\023\n\013stringValue\030" +
+      "\001 \001(\t\022\020\n\010intValue\030\002 \001(\005\022\022\n\nstringList\030\003 " +
+      "\003(\t\022\017\n\007intList\030\004 \003(\005\"7\n\020ResponseWithList" +
+      "\022\022\n\nstringList\030\001 \003(\t\022\017\n\007intList\030\002 \003(\005\"\241\001" +
+      "\n\021OtherMessageTypes\022\031\n\007request\030\001 \001(\0132\010.R" +
+      "equest\022\'\n\016requestWithMap\030\002 \001(\0132\017.Request" +
+      "WithMap\022)\n\017requestWithList\030\003 \001(\0132\020.Reque" +
+      "stWithList\022\035\n\013requestList\030\004 \003(\0132\010.Reques" +
+      "tB)\n%io.siddhi.extension.map.protobuf.gr" +
+      "pcP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -95,7 +104,6 @@ public final class Sample {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          com.google.protobuf.EmptyProto.getDescriptor(),
         }, assigner);
     internal_static_Request_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -145,7 +153,12 @@ public final class Sample {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResponseWithList_descriptor,
         new String[] { "StringList", "IntList", });
-    com.google.protobuf.EmptyProto.getDescriptor();
+    internal_static_OtherMessageTypes_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_OtherMessageTypes_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_OtherMessageTypes_descriptor,
+        new String[] { "Request", "RequestWithMap", "RequestWithList", "RequestList", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
