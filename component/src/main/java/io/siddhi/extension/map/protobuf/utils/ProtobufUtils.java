@@ -33,9 +33,9 @@ import java.util.List;
  */
 public class ProtobufUtils {
     public static String getServiceName(String path, String siddhiAppName, String streamID) {
-        List<String> urlParts = new ArrayList<>(Arrays.asList(path.substring(1).split(GrpcConstants
+        List<String> urlParts = new ArrayList<>(Arrays.asList(path.substring(1).split(ProtobufConstants
                 .PORT_SERVICE_SEPARATOR)));
-        if (urlParts.contains(GrpcConstants.EMPTY_STRING)) {
+        if (urlParts.contains(ProtobufConstants.EMPTY_STRING)) {
             throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Malformed URL. There should " +
                     "not be any empty parts in the URL between two '/'");
         }
@@ -44,18 +44,18 @@ public class ProtobufUtils {
                     "number at least two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
                     "<ServiceName>/<MethodName>'");
         }
-        return urlParts.get(GrpcConstants.PATH_SERVICE_NAME_POSITION);
+        return urlParts.get(ProtobufConstants.PATH_SERVICE_NAME_POSITION);
     }
 
     public static String getMethodName(String path, String siddhiAppName, String streamID) {
-        List<String> urlParts = new ArrayList<>(Arrays.asList(path.split(GrpcConstants.PORT_SERVICE_SEPARATOR)));
-        urlParts.removeAll(Collections.singletonList(GrpcConstants.EMPTY_STRING));
+        List<String> urlParts = new ArrayList<>(Arrays.asList(path.split(ProtobufConstants.PORT_SERVICE_SEPARATOR)));
+        urlParts.removeAll(Collections.singletonList(ProtobufConstants.EMPTY_STRING));
         if (urlParts.size() < 2) {
             throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Malformed URL. After port " +
                     "number at least two sections should be available separated by '/' as in 'grpc://<host>:<port>/" +
                     "<ServiceName>/<MethodName>'");
         }
-        return urlParts.get(GrpcConstants.PATH_METHOD_NAME_POSITION);
+        return urlParts.get(ProtobufConstants.PATH_METHOD_NAME_POSITION);
     }
 
     public static Class getDataType(Attribute.Type type) {
@@ -113,8 +113,8 @@ public class ProtobufUtils {
         List<String> rpcMethodNameList = new ArrayList<>();
         String[] serviceReferenceArray = serviceReference.split("\\.");
         String serviceName = serviceReferenceArray[serviceReferenceArray.length - 1];
-        String stubReference = serviceReference + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE
-                + GrpcConstants.DOLLAR_SIGN + serviceName + GrpcConstants.STUB_NAME;
+        String stubReference = serviceReference + ProtobufConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE
+                + ProtobufConstants.DOLLAR_SIGN + serviceName + ProtobufConstants.STUB_NAME;
         Method[] methodsInStub;
         try {
             methodsInStub = Class.forName(stubReference).getMethods(); //get all methods in stub Inner class

@@ -30,7 +30,7 @@ import io.siddhi.core.stream.input.source.InputEventHandler;
 import io.siddhi.core.stream.input.source.SourceMapper;
 import io.siddhi.core.util.config.ConfigReader;
 import io.siddhi.core.util.transport.OptionHolder;
-import io.siddhi.extension.map.protobuf.utils.GrpcConstants;
+import io.siddhi.extension.map.protobuf.utils.ProtobufConstants;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.definition.StreamDefinition;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
@@ -156,28 +156,28 @@ public class ProtobufSourceMapper extends SourceMapper {
         this.siddhiAppName = siddhiAppContext.getName();
         this.streamID = streamDefinition.getId();
         String userProvidedClassName = null;
-        if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
-            userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
+        if (optionHolder.isOptionExists(ProtobufConstants.CLASS_OPTION_HOLDER)) {
+            userProvidedClassName = optionHolder.validateAndGetOption(ProtobufConstants.CLASS_OPTION_HOLDER).getValue();
         }
 
-        if (sourceType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
-            if (GrpcConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType)
+        if (sourceType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
+            if (ProtobufConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType)
                     && attributeMappingList.size() == 0) {
                 throw new SiddhiAppCreationException("No mapping found at @Map, mapping should be available to " +
                         "continue for Siddhi App " + siddhiAppName); //grpc-service-source should have a mapping
             }
             String url = null;
-            if (sourceOptionHolder.isOptionExists(GrpcConstants.RECEIVER_URL)) {
-                url = sourceOptionHolder.validateAndGetStaticValue(GrpcConstants.RECEIVER_URL);
+            if (sourceOptionHolder.isOptionExists(ProtobufConstants.RECEIVER_URL)) {
+                url = sourceOptionHolder.validateAndGetStaticValue(ProtobufConstants.RECEIVER_URL);
             }
             if (url != null) {
                 URL aURL;
                 try {
-                    if (!url.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                    if (!url.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
                         throw new SiddhiAppValidationException(siddhiAppName + ":" + streamID + ": The url must " +
-                                "begin with \"" + GrpcConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
+                                "begin with \"" + ProtobufConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
                     }
-                    aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
+                    aURL = new URL(ProtobufConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
                 } catch (MalformedURLException e) {
                     throw new SiddhiAppValidationException(siddhiAppName + ":" + streamID + ": Error in URL format. " +
                             "Expected format is `grpc://0.0.0.0:9763/<serviceName>/<methodName>` but the provided url" +
@@ -189,18 +189,18 @@ public class ProtobufSourceMapper extends SourceMapper {
                     String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
                             methodReference.substring(1);
                     Field methodDescriptor = Class.forName(fullQualifiedServiceReference +
-                            GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
-                            (GrpcConstants.GETTER + capitalizedFirstLetterMethodName + GrpcConstants.METHOD_NAME);
+                            ProtobufConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
+                            (ProtobufConstants.GETTER + capitalizedFirstLetterMethodName + ProtobufConstants.METHOD_NAME);
                     ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
-                    if (GrpcConstants.GRPC_CALL_RESPONSE_SOURCE_NAME.equalsIgnoreCase(sourceType)) {
+                    if (ProtobufConstants.GRPC_CALL_RESPONSE_SOURCE_NAME.equalsIgnoreCase(sourceType)) {
                         messageObjectClass = (Class) parameterizedType
-                                .getActualTypeArguments()[GrpcConstants.RESPONSE_CLASS_POSITION];
+                                .getActualTypeArguments()[ProtobufConstants.RESPONSE_CLASS_POSITION];
                     } else {
                         messageObjectClass = (Class) parameterizedType
-                                .getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
+                                .getActualTypeArguments()[ProtobufConstants.REQUEST_CLASS_POSITION];
                     }
                     if (userProvidedClassName != null) {
-                        if (url.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                        if (url.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
                             /* only if sink is a grpc type, check for both user provided class name and the required
                              class name*/
                             if (!messageObjectClass.getName().equals(userProvidedClassName)) {
@@ -211,7 +211,7 @@ public class ProtobufSourceMapper extends SourceMapper {
                             }
                         }
                     }
-                    Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                    Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME); //to
                     // create an builder object of message class
                     messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
                 } catch (ClassNotFoundException e) {
@@ -239,7 +239,7 @@ public class ProtobufSourceMapper extends SourceMapper {
             }
             try {
                 messageObjectClass = Class.forName(userProvidedClassName);
-                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME); //to
                 // create an builder object of message class
                 messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
@@ -261,9 +261,9 @@ public class ProtobufSourceMapper extends SourceMapper {
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Object[] objectArray = new Object[this.size];
-        if (!sourceType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+        if (!sourceType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
             try {
-                eventObject = messageObjectClass.getDeclaredMethod(GrpcConstants.PARSE_FROM_NAME, byte[].class)
+                eventObject = messageObjectClass.getDeclaredMethod(ProtobufConstants.PARSE_FROM_NAME, byte[].class)
                         .invoke(messageObjectClass, eventObject);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + " error while creating the " +
@@ -317,33 +317,34 @@ public class ProtobufSourceMapper extends SourceMapper {
             Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
             throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + "Attribute name or type do " +
                     "not match with protobuf variable or type. provided attribute '" + attributeName +
-                    "'. Expected one of these attributes " +
-                    protobufFieldsWithTypes(fields) + ".", e);
+                    "'. Expected one of these attributes " + protobufFieldsWithTypes(fields) + ".", e);
         }
     }
 
     private Method getGetterMethod(Attribute.Type attributeType, String attributeName)
             throws NoSuchMethodException, NoSuchFieldException {
         if (attributeType == Attribute.Type.OBJECT) {
-            if (List.class.isAssignableFrom(messageObjectClass.getDeclaredField(attributeName + "_")
+            if (List.class.isAssignableFrom(messageObjectClass.getDeclaredField(attributeName +
+                    ProtobufConstants.UNDERSCORE)
                     .getType())) {
                 return messageObjectClass.getDeclaredMethod(
-                        GrpcConstants.GETTER + toLowerCamelCase(attributeName) + GrpcConstants.LIST_NAME);
-            } else if (MapField.class.isAssignableFrom(messageObjectClass.getDeclaredField(attributeName + "_")
+                        ProtobufConstants.GETTER + toLowerCamelCase(attributeName) + ProtobufConstants.LIST_NAME);
+            } else if (MapField.class.isAssignableFrom(messageObjectClass.getDeclaredField(attributeName +
+                    ProtobufConstants.UNDERSCORE)
                     .getType())) {
                 return messageObjectClass.getDeclaredMethod(
-                        GrpcConstants.GETTER + toLowerCamelCase(attributeName) + GrpcConstants.MAP_NAME);
+                        ProtobufConstants.GETTER + toLowerCamelCase(attributeName) + ProtobufConstants.MAP_NAME);
             } else if (GeneratedMessageV3.class.isAssignableFrom(messageObjectClass.getDeclaredField(
-                    attributeName + "_")
+                    attributeName + ProtobufConstants.UNDERSCORE)
                     .getType())) {
-                return messageObjectClass.getDeclaredMethod(GrpcConstants.GETTER + toLowerCamelCase(
+                return messageObjectClass.getDeclaredMethod(ProtobufConstants.GETTER + toLowerCamelCase(
                         attributeName));
             } else {
                 throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
                         " 'another message type' with 'object' data type");
             }
         } else {
-            return messageObjectClass.getDeclaredMethod(GrpcConstants.GETTER + toLowerCamelCase(
+            return messageObjectClass.getDeclaredMethod(ProtobufConstants.GETTER + toLowerCamelCase(
                     attributeName));
         }
     }
