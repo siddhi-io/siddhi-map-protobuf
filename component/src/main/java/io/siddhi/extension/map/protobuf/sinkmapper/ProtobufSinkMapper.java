@@ -338,9 +338,14 @@ public class ProtobufSinkMapper extends SinkMapper {
                     attributeName + "_").getType())) { //check if map or not
                 return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants
                         .PUTALL_METHOD + toLowerCamelCase(attributeName), java.util.Map.class);
+            } else if (GeneratedMessageV3.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
+                    attributeName + "_").getType())) {
+                return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + toLowerCamelCase(
+                        attributeName), messageBuilderObject.getClass().getDeclaredField(attributeName + "_")
+                        .getType());
             } else {
-                throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' " +
-                        "or 'list' with 'object' data type");
+                throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
+                        " 'another message type' with 'object' data type");
             }
         } else {
             return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + toLowerCamelCase(
@@ -359,7 +364,7 @@ public class ProtobufSinkMapper extends SinkMapper {
 
     private static class MappingPositionData {
         private Method messageObjectSetterMethod;
-        private int position; //this attribute can be removed
+        private int position;
 
         private MappingPositionData(Method messageObjectSetterMethod, int position) {
             this.messageObjectSetterMethod = messageObjectSetterMethod;

@@ -22,8 +22,7 @@ option java_package = "io.siddhi.extension.map.protobuf.grpc";
 
 import "google/protobuf/empty.proto";
 
-message Request
-{
+message Request {
     string stringValue = 1;
     int32 intValue = 2;
     int64 longValue = 3;
@@ -33,8 +32,7 @@ message Request
 
 }
 
-message Response
-{
+message Response {
     string stringValue = 1;
     int32 intValue = 2;
     int64 LongValue = 3;
@@ -43,31 +41,34 @@ message Response
     double doubleValue = 6;
 }
 
-message RequestWithMap
-{
+message RequestWithMap {
     string stringValue =1;
     int32 intValue = 2;
     map<string,string> map = 3;
 
 }
 
-message ResponseWithMap
-{
+message ResponseWithMap {
     string stringValue =1;
     int32 intValue = 2;
     map<string,string> map = 3;
 }
 
-message RequestWithList
-{
+message RequestWithList {
     string stringValue = 1;
     int32 intValue = 2;
     repeated string stringList = 3;
     repeated int32 intList = 4;
 }
 
-message ResponseWithList
-{
+message ResponseWithList {
     repeated string stringList = 1;
     repeated int32 intList = 2;
+}
+
+message OtherMessageTypes {
+    Request request = 1;
+    RequestWithMap requestWithMap = 2;
+    RequestWithList requestWithList = 3;
+    repeated Request requestList = 4;
 }
