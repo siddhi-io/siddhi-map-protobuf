@@ -27,4 +27,9 @@
         <Class name="io.siddhi.extension.map.protobuf.sourcemapper.ProtobufSourceMapper"/>
         <Bug pattern="DM_CONVERT_CASE"/>
     </Match>
+
+    <Match>
+        <Class name="io.siddhi.extension.map.protobuf.utils.ProtobufUtils"/>
+        <Bug pattern="DM_CONVERT_CASE"/>
+    </Match>
 </FindBugsFilter>

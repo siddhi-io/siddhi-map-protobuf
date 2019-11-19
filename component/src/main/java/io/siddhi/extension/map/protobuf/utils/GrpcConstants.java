@@ -18,7 +18,7 @@
 package io.siddhi.extension.map.protobuf.utils;
 
 /**
- * Class to hold the constants used by protobuf source and sink mapper
+ * Class to hold the constants used by protobuf source and sink mapper.
  */
 public class GrpcConstants {
 
@@ -41,8 +41,10 @@ public class GrpcConstants {
     public static final String SETTER = "set";
     public static final String GETTER = "get";
     public static final String MAP_NAME = "Map";
+    public static final String LIST_NAME = "List";
     public static final String BUILD_METHOD = "build";
     public static final String PUTALL_METHOD = "putAll";
+    public static final String ADDALL_METHOD = "addAll";
     public static final String METHOD_NAME = "Method";
     public static final int PATH_SERVICE_NAME_POSITION = 0;
     public static final int PATH_METHOD_NAME_POSITION = 1;

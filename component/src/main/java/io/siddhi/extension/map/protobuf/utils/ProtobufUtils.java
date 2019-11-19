@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Class to hold the static util methods needed
+ * Class to hold the static util methods needed.
  */
 public class ProtobufUtils {
     public static String getServiceName(String path, String siddhiAppName, String streamID) {
@@ -96,13 +96,15 @@ public class ProtobufUtils {
                 // as Object
             } else if (type.equals("MapField")) {
                 type = "Map";
+            } else if (List.class.isAssignableFrom(field.getType())) {
+                type = "List";
             }
             variableNamesWithType.append("\"'").append(name).append("' : ").append(type).append("\" , ");
 
         }
         variableNamesWithType = new StringBuilder(variableNamesWithType.substring(0,
                 variableNamesWithType.length() - 2));
-        variableNamesWithType.append(" }");
+        variableNamesWithType.append("}");
         return variableNamesWithType.toString();
     }
 
@@ -128,5 +130,9 @@ public class ProtobufUtils {
             }
         }
         return rpcMethodNameList;
+    }
+
+    public static String toLowerCamelCase(String attributeName) {
+       return attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
     }
 }

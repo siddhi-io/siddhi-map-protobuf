@@ -17,6 +17,7 @@ package io.siddhi.extension.map.protobuf.sinkmapper;
 
 import com.google.protobuf.AbstractMessageLite;
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.MapField;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
@@ -51,6 +52,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getMethodName
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getRPCmethodList;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceName;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
+import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toLowerCamelCase;
 
 /**
  * Protobuf SinkMapper converts siddhi events in to protobuf message objects.
@@ -223,7 +225,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                         "given.");
             }
         } else {
-            log.info(siddhiAppName + ": Not a grpc sink, getting the protobuf class name from 'class' parameter");
+            log.debug(siddhiAppName + ": Not a grpc sink, getting the protobuf class name from 'class' parameter");
             if (userProvidedClassName == null) {
                 throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + "No class name provided in " +
                         "the @map, you should provide the protobuf class name within the 'class' parameter");
@@ -280,14 +282,12 @@ public class ProtobufSinkMapper extends SinkMapper {
             // build() method
             if (sinkType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
                 sinkListener.publish(messageObject);
-                return;
             } else {
                 byte[] messageObjectByteArray = (byte[]) AbstractMessageLite.class
                         .getDeclaredMethod(GrpcConstants.TO_BYTE_ARRAY).invoke(messageObject);
                 sinkListener.publish(messageObjectByteArray);
+                clearMessageBuilderObject();
             }
-
-
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " Unknown error occurred during " +
                     "runtime," + e.getMessage(), e);
@@ -297,26 +297,14 @@ public class ProtobufSinkMapper extends SinkMapper {
 
     private void initializeSetterMethods(StreamDefinition streamDefinition, Map<String, TemplateBuilder>
             templateBuilderMap) {
-        Attribute.Type attributeType = null;
+        Attribute.Type attributeType;
         String attributeName = null;
         try {
             if (templateBuilderMap == null) {
                 for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
-                    attributeType = streamDefinition.getAttributeList().get(i).getType(); //get attribute
-                    // type
+                    attributeType = streamDefinition.getAttributeList().get(i).getType(); //get attribute type
                     attributeName = streamDefinition.getAttributeNameArray()[i]; //get attribute name
-                    attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-                    Method setterMethod;
-
-                    if (attributeType == Attribute.Type.OBJECT) {
-                        setterMethod =
-                                messageBuilderObject.getClass().getDeclaredMethod(
-                                        GrpcConstants.PUTALL_METHOD + attributeName, java.util.Map.class);
-                    } else {
-                        setterMethod =
-                                messageBuilderObject.getClass().getDeclaredMethod(
-                                        GrpcConstants.SETTER + attributeName, ProtobufUtils.getDataType(attributeType));
-                    }
+                    Method setterMethod = setSetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionData(setterMethod, i));
                 }
             } else {
@@ -325,32 +313,47 @@ public class ProtobufSinkMapper extends SinkMapper {
                 for (int i = 0; i < templateBuilderMap.size(); i++) {
                     attributeName = mapKeySetList.get(i); //get attribute name
                     attributeType = templateBuilderMap.get(attributeName).getType();
-                    attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-                    Method setterMethod;
-                    if (attributeType == Attribute.Type.OBJECT) {
-                        setterMethod =
-                                messageBuilderObject.getClass().getDeclaredMethod(
-                                        GrpcConstants.PUTALL_METHOD + attributeName, java.util.Map.class);
-                    } else {
-                        setterMethod =
-                                messageBuilderObject.getClass().getDeclaredMethod(
-                                        GrpcConstants.SETTER + attributeName, ProtobufUtils.getDataType(attributeType));
-                    }
+                    Method setterMethod = setSetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionDataWithTemplateBuilder(setterMethod,
                             templateBuilderMap.get(mapKeySetList.get(i))));
                 }
             }
-        } catch (NoSuchMethodException e) {
-            Field[] fields = messageBuilderObject.getClass().getDeclaredFields(); //get all available
-            // attributes
-            String attributeTypeName = attributeType.name(); // this will not throw null pointer exception
-            if (attributeType == Attribute.Type.OBJECT) {
-                attributeTypeName = "Map";
-            }
+        } catch (NoSuchMethodException | NoSuchFieldException e) {
+            Field[] fields = messageBuilderObject.getClass().getDeclaredFields(); //get all available attributes
             throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + "Attribute name or type does " +
-                    "not match with protobuf variable or type. provided attribute \"'" + attributeName +
-                    "' : " + attributeTypeName + "\". Expected one of these attributes " +
-                    protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
+                    "not match with protobuf variable or type. provided attribute '" + attributeName +
+                     "'. Expected one of these attributes " + protobufFieldsWithTypes(fields) + ".",
+                    e);
+        }
+    }
+
+    private Method setSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
+            NoSuchMethodException {
+        if (attributeType == Attribute.Type.OBJECT) {
+            if (List.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
+                    attributeName + "_").getType())) { // check if list or not
+                return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants
+                        .ADDALL_METHOD + toLowerCamelCase(attributeName), Iterable.class);
+            } else if (MapField.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
+                    attributeName + "_").getType())) { //check if map or not
+                return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants
+                        .PUTALL_METHOD + toLowerCamelCase(attributeName), java.util.Map.class);
+            } else {
+                throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' " +
+                        "or 'list' with 'object' data type");
+            }
+        } else {
+            return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + toLowerCamelCase(
+                    attributeName), ProtobufUtils.getDataType(attributeType));
+        }
+    }
+
+    private void clearMessageBuilderObject() {
+        try {
+            messageBuilderObject.getClass().getDeclaredMethod("clear").invoke(messageBuilderObject);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " : Unable to find 'clear()' " +
+                    "method." , e);
         }
     }
 

@@ -23,16 +23,23 @@ import io.siddhi.core.stream.output.StreamCallback;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.transport.InMemoryBroker;
 import io.siddhi.extension.map.protobuf.grpc.Request;
+import io.siddhi.extension.map.protobuf.grpc.RequestWithList;
 import io.siddhi.extension.map.protobuf.grpc.RequestWithMap;
+import io.siddhi.extension.map.protobuf.grpc.ResponseWithList;
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * TestCases for protobuf-sink-mapper.
+ */
 public class TestCaseOfProtobufSinkMapper {
     private static final Logger log = Logger.getLogger(TestCaseOfProtobufSinkMapper.class);
     private AtomicInteger count = new AtomicInteger();
@@ -44,8 +51,7 @@ public class TestCaseOfProtobufSinkMapper {
     }
 
     @Test
-    public void protobuSinkMapperTestCase1() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 1");
+    public void protobuSinkMapperDefaultTestCase() throws InterruptedException {
 
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
@@ -99,8 +105,7 @@ public class TestCaseOfProtobufSinkMapper {
     }
 
     @Test
-    public void protobuSinkMapperTestCase2() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 2");
+    public void protobuSinkMapperTestCaseWithKeyValue() throws InterruptedException {
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
@@ -151,22 +156,20 @@ public class TestCaseOfProtobufSinkMapper {
         InMemoryBroker.unsubscribe(subscriber);
     }
 
-
-    @Test //when user send the class name with the mapper
-    public void protobuSinkMapperTestCase3() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 3");
+    @Test
+    public void protobuSinkMapperTestCaseWithMapObject() throws InterruptedException {
+        Map<String, String> map1 = new HashMap<>();
+        map1.put("0001", "Barry Allen");
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                Request request = Request.newBuilder()
-                        .setBooleanValue(true)
+                RequestWithMap requestWithMap = RequestWithMap.newBuilder()
+                        .setIntValue(60000)
                         .setStringValue("Test 01")
-                        .setDoubleValue(34.5668 * 2)
-                        .setFloatValue(522.7586f * 2)
-                        .setIntValue(60 * 2)
-                        .setLongValue(10000L * 2)
+                        .putAllMap(map1)
                         .build();
-                AssertJUnit.assertEquals(request.toByteArray(), (byte[]) o);
+                AssertJUnit.assertEquals(requestWithMap.toByteArray(), (byte[]) o);
+
             }
 
             @Override
@@ -174,19 +177,16 @@ public class TestCaseOfProtobufSinkMapper {
                 return "test01";
             }
         };
-        //subscribe to "inMemory" broker per topic
         InMemoryBroker.subscribe(subscriber);
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
-                "define stream FooStream (a string, b long,c int,d bool,e float,f double); " +
+                "define stream FooStream (stringValue string,intValue int,map object); " +
                 "@sink(type='inMemory', topic='test01'," +
-                "@map(type='protobuf' , class='" + packageName + ".Request', " +
-                "@payload(stringValue='a',longValue='b',intValue='c',booleanValue='d',floatValue = 'e', doubleValue =" +
-                " 'f'))) " +
-                "define stream BarStream (a string, b long, c int,d bool,e float,f double); ";
+                "@map(type='protobuf', class='" + packageName + ".RequestWithMap')) " +
+                "define stream BarStream (stringValue string,intValue int,map object); ";
         String query = "" +
                 "from FooStream " +
-                "select a,b*2 as b,c*2 as c, d ,e*2 as e,f*2 as f " +
+                "select * " +
                 "insert into BarStream; ";
         SiddhiManager siddhiManager = new SiddhiManager();
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
@@ -198,16 +198,14 @@ public class TestCaseOfProtobufSinkMapper {
         });
         InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
         siddhiAppRuntime.start();
-        Object[] data1 = {"Test 01", 10000L, 60, true, 522.7586f, 34.5668};
+        Object[] data1 = {"Test 01", 60000, map1};
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
-        //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);
     }
 
     @Test
-    public void protobuSinkMapperTestCase4() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 4");
+    public void protobuSinkMapperTestCaseKeyValueAndMapObject() throws InterruptedException {
         Map<String, String> map1 = new HashMap<>();
         map1.put("0001", "Barry Allen");
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
@@ -257,20 +255,26 @@ public class TestCaseOfProtobufSinkMapper {
     }
 
     @Test
-    public void protobuSinkMapperTestCase5() throws InterruptedException {
-        log.info("ProtobufSinkMapperTestCase 5");
-        Map<String, String> map1 = new HashMap<>();
-        map1.put("0001", "Barry Allen");
+    public void protobuSinkMapperTestCaseWithLists() throws InterruptedException {
+        log.info("ProtobufSinkMapperTestCase 6");
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Test1");
+        stringList.add("Test2");
+        stringList.add("Test3");
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(100);
+        integerList.add(200);
+        integerList.add(300);
         InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object o) {
-                RequestWithMap requestWithMap = RequestWithMap.newBuilder()
-                        .setIntValue(60000)
+                RequestWithList requestWithList = RequestWithList.newBuilder()
+                        .addAllStringList(stringList)
+                        .addAllIntList(integerList)
+                        .setIntValue(60)
                         .setStringValue("Test 01")
-                        .putAllMap(map1)
                         .build();
-                AssertJUnit.assertEquals(requestWithMap.toByteArray(), (byte[]) o);
-
+                AssertJUnit.assertEquals(requestWithList.toByteArray(), (byte[]) o);
             }
 
             @Override
@@ -278,13 +282,15 @@ public class TestCaseOfProtobufSinkMapper {
                 return "test01";
             }
         };
+
+        //subscribe to "inMemory" broker per topic
         InMemoryBroker.subscribe(subscriber);
         String streams = "" +
                 "@App:name('TestSiddhiApp1')" +
-                "define stream FooStream (stringValue string,intValue int,map object); " +
+                "define stream FooStream (intValue int, stringValue string, stringList object, intList object); " +
                 "@sink(type='inMemory', topic='test01'," +
-                "@map(type='protobuf', class='" + packageName + ".RequestWithMap')) " +
-                "define stream BarStream (stringValue string,intValue int,map object); ";
+                "@map(type='protobuf', class='" + packageName + ".RequestWithList')) " +
+                "define stream BarStream (intValue int, stringValue string, stringList object, intList object); ";
         String query = "" +
                 "from FooStream " +
                 "select * " +
@@ -299,9 +305,67 @@ public class TestCaseOfProtobufSinkMapper {
         });
         InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
         siddhiAppRuntime.start();
-        Object[] data1 = {"Test 01", 60000, map1};
+        Object[] data1 = {60, "Test 01", stringList, integerList};
+        stockStream.send(data1);
         stockStream.send(data1);
         siddhiAppRuntime.shutdown();
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriber);
+    }
+    @Test
+    public void protobuSinkMapperTestCaseWithListsAndKeyValue() throws InterruptedException {
+        log.info("ProtobufSinkMapperTestCase 7");
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Test1");
+        stringList.add("Test2");
+        stringList.add("Test3");
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(100);
+        integerList.add(200);
+        integerList.add(300);
+        InMemoryBroker.Subscriber subscriber = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object o) {
+                ResponseWithList requestWithList = ResponseWithList.newBuilder()
+                        .addAllStringList(stringList)
+                        .addAllIntList(integerList)
+                        .build();
+                AssertJUnit.assertEquals(requestWithList.toByteArray(), (byte[]) o);
+            }
+
+            @Override
+            public String getTopic() {
+                return "test01";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriber);
+        String streams = "" +
+                "@App:name('TestSiddhiApp1')" +
+                "define stream FooStream (a object,b object); " +
+                "@sink(type='inMemory', topic='test01'," +
+                "@map(type='protobuf', class='" + packageName + ".ResponseWithList', " +
+                "@payload(stringList='a', intList='b'))) " +
+                "define stream BarStream (a object,b object); ";
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(toMap(events));
+            }
+        });
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
+        siddhiAppRuntime.start();
+        Object[] data1 = {stringList, integerList};
+        stockStream.send(data1);
+        siddhiAppRuntime.shutdown();
+        //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriber);
     }
 

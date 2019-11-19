@@ -24,17 +24,22 @@ import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.core.util.transport.InMemoryBroker;
 import io.siddhi.extension.map.protobuf.grpc.Request;
+import io.siddhi.extension.map.protobuf.grpc.RequestWithList;
 import io.siddhi.extension.map.protobuf.grpc.RequestWithMap;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-
+/**
+ * TestCases for protobuf-source-mapper.
+ */
 public class TestCaseOfProtobufSourceMapper {
 
     private static Logger log = Logger.getLogger(TestCaseOfProtobufSourceMapper.class.getName());
@@ -49,8 +54,7 @@ public class TestCaseOfProtobufSourceMapper {
     }
 
     @Test
-    public void protobufSourceMapperTest1() throws Exception {
-        log.info("ProtobufSourceMapper 1");
+    public void protobufSourceMapperTest() throws Exception {
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01'," +
@@ -122,8 +126,7 @@ public class TestCaseOfProtobufSourceMapper {
     }
 
     @Test
-    public void protobufSourceMapperTest2() throws Exception {
-        log.info("ProtobufSourceMapper 2");
+    public void protobufSourceMapperTestWithKeyValue() throws Exception {
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01'," +
@@ -197,8 +200,7 @@ public class TestCaseOfProtobufSourceMapper {
 
 
     @Test
-    public void protobufSourceMapperTest4() throws Exception {
-        log.info("ProtobufSourceMapper 2");
+    public void protobufSourceMapperTestWithMapObject() throws Exception {
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01',  " +
@@ -250,8 +252,7 @@ public class TestCaseOfProtobufSourceMapper {
     }
 
     @Test
-    public void protobufSourceMapperTest6() throws Exception {
-        log.info("ProtobufSourceMapper 2");
+    public void protobufSourceMapperTestKeyValueAndMapObject() throws Exception {
         String streams = "" +
                 "@App:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='test01',  " +
@@ -300,6 +301,125 @@ public class TestCaseOfProtobufSourceMapper {
         AssertJUnit.assertEquals("Number of events", 1, count.get());
         siddhiAppRuntime.shutdown();
 
+    }
+
+    @Test
+    public void protobufSourceMapperTestWithLists() throws Exception {
+        log.info("ProtobufSourceMapper 1");
+        String streams = "" +
+                "@App:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='test01'," +
+                " @map(type='protobuf', class='" + packageName + ".RequestWithList')) " +
+                "define stream FooStream (stringList object,intList object, stringValue string, intValue int);" +
+                "define stream BarStream (stringList object,intList object, stringValue string, intValue int);";
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Test1");
+        stringList.add("Test2");
+        stringList.add("Test3");
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(100);
+        integerList.add(200);
+        integerList.add(300);
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            AssertJUnit.assertEquals(stringList, event.getData(0));
+                            AssertJUnit.assertEquals(integerList, event.getData(1));
+                            AssertJUnit.assertEquals("String value", event.getData(2));
+                            AssertJUnit.assertEquals(2000, event.getData(3));
+                            break;
+                        default:
+                            AssertJUnit.fail();
+                    }
+                }
+            }
+        });
+        siddhiAppRuntime.start();
+
+        RequestWithList requestWithList = RequestWithList.newBuilder()
+                .addAllStringList(stringList)
+                .addAllIntList(integerList)
+                .setStringValue("String value")
+                .setIntValue(2000)
+                .build();
+        InMemoryBroker.publish("test01", requestWithList.toByteArray());
+        SiddhiTestHelper.waitForEvents(waitTime, 1, count, timeout);
+        //assert event count
+        AssertJUnit.assertEquals("Number of events", 1, count.get());
+        siddhiAppRuntime.shutdown();
+
+    }
+
+    @Test
+    public void protobufSourceMapperTestWithListsAndKeyValue() throws Exception {
+        log.info("ProtobufSourceMapper 2");
+        String streams = "" +
+                "@App:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='test01',  " +
+                " @map(type='protobuf', class='" + packageName + ".RequestWithList'," +
+                " @attributes(a = 'stringValue' ,b = 'intValue', c  ='stringList', d = 'intList'))) " +
+                "define stream FooStream (a string,b int,c object,d object); " +
+                "define stream BarStream (a string,b int,c object, d object); ";
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Test1");
+        stringList.add("Test2");
+        stringList.add("Test3");
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(100);
+        integerList.add(200);
+        integerList.add(300);
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1: {
+                            AssertJUnit.assertEquals("Barry Allen", event.getData(0));
+                            AssertJUnit.assertEquals(100, event.getData(1));
+                            AssertJUnit.assertEquals(stringList, event.getData(2));
+                            AssertJUnit.assertEquals(integerList, event.getData(3));
+                            break;
+                        }
+                        default:
+                            AssertJUnit.fail();
+                    }
+                }
+            }
+        });
+        siddhiAppRuntime.start();
+        RequestWithList requestWithList = RequestWithList.newBuilder()
+                .setStringValue("Barry Allen")
+                .setIntValue(100)
+                .addAllIntList(integerList)
+                .addAllStringList(stringList)
+                .build();
+        InMemoryBroker.publish("test01", requestWithList.toByteArray());
+        SiddhiTestHelper.waitForEvents(waitTime, 1, count, timeout);
+        //assert event count
+        AssertJUnit.assertEquals("Number of events", 1, count.get());
+        siddhiAppRuntime.shutdown();
     }
 
 

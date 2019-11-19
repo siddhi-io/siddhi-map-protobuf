@@ -4,19 +4,21 @@
 package io.siddhi.extension.map.protobuf.grpc;
 
 /**
- * Protobuf type {@code Response}
+ * Protobuf type {@code RequestWithList}
  */
-public  final class Response extends
+public  final class RequestWithList extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:Response)
-        ResponseOrBuilder {
+    // @@protoc_insertion_point(message_implements:RequestWithList)
+        RequestWithListOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use Response.newBuilder() to construct.
-  private Response(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use RequestWithList.newBuilder() to construct.
+  private RequestWithList(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private Response() {
+  private RequestWithList() {
     stringValue_ = "";
+    stringList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    intList_ = emptyIntList();
   }
 
   @Override
@@ -24,7 +26,7 @@ private static final long serialVersionUID = 0L;
   getUnknownFields() {
     return this.unknownFields;
   }
-  private Response(
+  private RequestWithList(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -54,24 +56,34 @@ private static final long serialVersionUID = 0L;
             intValue_ = input.readInt32();
             break;
           }
-          case 24: {
-
-            longValue_ = input.readInt64();
+          case 26: {
+            String s = input.readStringRequireUtf8();
+            if (!((mutable_bitField0_ & 0x00000004) != 0)) {
+              stringList_ = new com.google.protobuf.LazyStringArrayList();
+              mutable_bitField0_ |= 0x00000004;
+            }
+            stringList_.add(s);
             break;
           }
           case 32: {
-
-            booleanValue_ = input.readBool();
+            if (!((mutable_bitField0_ & 0x00000008) != 0)) {
+              intList_ = newIntList();
+              mutable_bitField0_ |= 0x00000008;
+            }
+            intList_.addInt(input.readInt32());
             break;
           }
-          case 45: {
-
-            floatValue_ = input.readFloat();
-            break;
-          }
-          case 49: {
-
-            doubleValue_ = input.readDouble();
+          case 34: {
+            int length = input.readRawVarint32();
+            int limit = input.pushLimit(length);
+            if (!((mutable_bitField0_ & 0x00000008) != 0) && input.getBytesUntilLimit() > 0) {
+              intList_ = newIntList();
+              mutable_bitField0_ |= 0x00000008;
+            }
+            while (input.getBytesUntilLimit() > 0) {
+              intList_.addInt(input.readInt32());
+            }
+            input.popLimit(limit);
             break;
           }
           default: {
@@ -89,23 +101,30 @@ private static final long serialVersionUID = 0L;
       throw new com.google.protobuf.InvalidProtocolBufferException(
           e).setUnfinishedMessage(this);
     } finally {
+      if (((mutable_bitField0_ & 0x00000004) != 0)) {
+        stringList_ = stringList_.getUnmodifiableView();
+      }
+      if (((mutable_bitField0_ & 0x00000008) != 0)) {
+        intList_.makeImmutable(); // C
+      }
       this.unknownFields = unknownFields.build();
       makeExtensionsImmutable();
     }
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_Response_descriptor;
+    return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_RequestWithList_descriptor;
   }
 
   @Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_Response_fieldAccessorTable
+    return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_RequestWithList_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            io.siddhi.extension.map.protobuf.grpc.Response.class, io.siddhi.extension.map.protobuf.grpc.Response.Builder.class);
+            io.siddhi.extension.map.protobuf.grpc.RequestWithList.class, io.siddhi.extension.map.protobuf.grpc.RequestWithList.Builder.class);
   }
 
+  private int bitField0_;
   public static final int STRINGVALUE_FIELD_NUMBER = 1;
   private volatile Object stringValue_;
   /**
@@ -149,41 +168,57 @@ private static final long serialVersionUID = 0L;
     return intValue_;
   }
 
-  public static final int LONGVALUE_FIELD_NUMBER = 3;
-  private long longValue_;
+  public static final int STRINGLIST_FIELD_NUMBER = 3;
+  private com.google.protobuf.LazyStringList stringList_;
   /**
-   * <code>int64 LongValue = 3;</code>
+   * <code>repeated string stringList = 3;</code>
    */
-  public long getLongValue() {
-    return longValue_;
+  public com.google.protobuf.ProtocolStringList
+      getStringListList() {
+    return stringList_;
+  }
+  /**
+   * <code>repeated string stringList = 3;</code>
+   */
+  public int getStringListCount() {
+    return stringList_.size();
+  }
+  /**
+   * <code>repeated string stringList = 3;</code>
+   */
+  public String getStringList(int index) {
+    return stringList_.get(index);
+  }
+  /**
+   * <code>repeated string stringList = 3;</code>
+   */
+  public com.google.protobuf.ByteString
+      getStringListBytes(int index) {
+    return stringList_.getByteString(index);
   }
 
-  public static final int BOOLEANVALUE_FIELD_NUMBER = 4;
-  private boolean booleanValue_;
+  public static final int INTLIST_FIELD_NUMBER = 4;
+  private com.google.protobuf.Internal.IntList intList_;
   /**
-   * <code>bool booleanValue = 4;</code>
+   * <code>repeated int32 intList = 4;</code>
    */
-  public boolean getBooleanValue() {
-    return booleanValue_;
+  public java.util.List<Integer>
+      getIntListList() {
+    return intList_;
   }
-
-  public static final int FLOATVALUE_FIELD_NUMBER = 5;
-  private float floatValue_;
   /**
-   * <code>float floatValue = 5;</code>
+   * <code>repeated int32 intList = 4;</code>
    */
-  public float getFloatValue() {
-    return floatValue_;
+  public int getIntListCount() {
+    return intList_.size();
   }
-
-  public static final int DOUBLEVALUE_FIELD_NUMBER = 6;
-  private double doubleValue_;
   /**
-   * <code>double doubleValue = 6;</code>
+   * <code>repeated int32 intList = 4;</code>
    */
-  public double getDoubleValue() {
-    return doubleValue_;
+  public int getIntList(int index) {
+    return intList_.getInt(index);
   }
+  private int intListMemoizedSerializedSize = -1;
 
   private byte memoizedIsInitialized = -1;
   @Override
@@ -199,23 +234,22 @@ private static final long serialVersionUID = 0L;
   @Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
+    getSerializedSize();
     if (!getStringValueBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, stringValue_);
     }
     if (intValue_ != 0) {
       output.writeInt32(2, intValue_);
     }
-    if (longValue_ != 0L) {
-      output.writeInt64(3, longValue_);
+    for (int i = 0; i < stringList_.size(); i++) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, stringList_.getRaw(i));
     }
-    if (booleanValue_ != false) {
-      output.writeBool(4, booleanValue_);
+    if (getIntListList().size() > 0) {
+      output.writeUInt32NoTag(34);
+      output.writeUInt32NoTag(intListMemoizedSerializedSize);
     }
-    if (floatValue_ != 0F) {
-      output.writeFloat(5, floatValue_);
-    }
-    if (doubleValue_ != 0D) {
-      output.writeDouble(6, doubleValue_);
+    for (int i = 0; i < intList_.size(); i++) {
+      output.writeInt32NoTag(intList_.getInt(i));
     }
     unknownFields.writeTo(output);
   }
@@ -233,21 +267,27 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(2, intValue_);
     }
-    if (longValue_ != 0L) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(3, longValue_);
+    {
+      int dataSize = 0;
+      for (int i = 0; i < stringList_.size(); i++) {
+        dataSize += computeStringSizeNoTag(stringList_.getRaw(i));
+      }
+      size += dataSize;
+      size += 1 * getStringListList().size();
     }
-    if (booleanValue_ != false) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeBoolSize(4, booleanValue_);
-    }
-    if (floatValue_ != 0F) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeFloatSize(5, floatValue_);
-    }
-    if (doubleValue_ != 0D) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeDoubleSize(6, doubleValue_);
+    {
+      int dataSize = 0;
+      for (int i = 0; i < intList_.size(); i++) {
+        dataSize += com.google.protobuf.CodedOutputStream
+          .computeInt32SizeNoTag(intList_.getInt(i));
+      }
+      size += dataSize;
+      if (!getIntListList().isEmpty()) {
+        size += 1;
+        size += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(dataSize);
+      }
+      intListMemoizedSerializedSize = dataSize;
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -259,25 +299,19 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof io.siddhi.extension.map.protobuf.grpc.Response)) {
+    if (!(obj instanceof io.siddhi.extension.map.protobuf.grpc.RequestWithList)) {
       return super.equals(obj);
     }
-    io.siddhi.extension.map.protobuf.grpc.Response other = (io.siddhi.extension.map.protobuf.grpc.Response) obj;
+    io.siddhi.extension.map.protobuf.grpc.RequestWithList other = (io.siddhi.extension.map.protobuf.grpc.RequestWithList) obj;
 
     if (!getStringValue()
         .equals(other.getStringValue())) return false;
     if (getIntValue()
         != other.getIntValue()) return false;
-    if (getLongValue()
-        != other.getLongValue()) return false;
-    if (getBooleanValue()
-        != other.getBooleanValue()) return false;
-    if (Float.floatToIntBits(getFloatValue())
-        != Float.floatToIntBits(
-            other.getFloatValue())) return false;
-    if (Double.doubleToLongBits(getDoubleValue())
-        != Double.doubleToLongBits(
-            other.getDoubleValue())) return false;
+    if (!getStringListList()
+        .equals(other.getStringListList())) return false;
+    if (!getIntListList()
+        .equals(other.getIntListList())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -293,86 +327,82 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getStringValue().hashCode();
     hash = (37 * hash) + INTVALUE_FIELD_NUMBER;
     hash = (53 * hash) + getIntValue();
-    hash = (37 * hash) + LONGVALUE_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getLongValue());
-    hash = (37 * hash) + BOOLEANVALUE_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-        getBooleanValue());
-    hash = (37 * hash) + FLOATVALUE_FIELD_NUMBER;
-    hash = (53 * hash) + Float.floatToIntBits(
-        getFloatValue());
-    hash = (37 * hash) + DOUBLEVALUE_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        Double.doubleToLongBits(getDoubleValue()));
+    if (getStringListCount() > 0) {
+      hash = (37 * hash) + STRINGLIST_FIELD_NUMBER;
+      hash = (53 * hash) + getStringListList().hashCode();
+    }
+    if (getIntListCount() > 0) {
+      hash = (37 * hash) + INTLIST_FIELD_NUMBER;
+      hash = (53 * hash) + getIntListList().hashCode();
+    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(byte[] data)
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(java.io.InputStream input)
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseDelimitedFrom(java.io.InputStream input)
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseDelimitedFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static io.siddhi.extension.map.protobuf.grpc.Response parseFrom(
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -385,7 +415,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(io.siddhi.extension.map.protobuf.grpc.Response prototype) {
+  public static Builder newBuilder(io.siddhi.extension.map.protobuf.grpc.RequestWithList prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @Override
@@ -401,26 +431,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code Response}
+   * Protobuf type {@code RequestWithList}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:Response)
-      io.siddhi.extension.map.protobuf.grpc.ResponseOrBuilder {
+      // @@protoc_insertion_point(builder_implements:RequestWithList)
+      io.siddhi.extension.map.protobuf.grpc.RequestWithListOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_Response_descriptor;
+      return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_RequestWithList_descriptor;
     }
 
     @Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_Response_fieldAccessorTable
+      return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_RequestWithList_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              io.siddhi.extension.map.protobuf.grpc.Response.class, io.siddhi.extension.map.protobuf.grpc.Response.Builder.class);
+              io.siddhi.extension.map.protobuf.grpc.RequestWithList.class, io.siddhi.extension.map.protobuf.grpc.RequestWithList.Builder.class);
     }
 
-    // Construct using io.siddhi.extension.map.protobuf.grpc.Response.newBuilder()
+    // Construct using io.siddhi.extension.map.protobuf.grpc.RequestWithList.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -442,31 +472,27 @@ private static final long serialVersionUID = 0L;
 
       intValue_ = 0;
 
-      longValue_ = 0L;
-
-      booleanValue_ = false;
-
-      floatValue_ = 0F;
-
-      doubleValue_ = 0D;
-
+      stringList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      intList_ = emptyIntList();
+      bitField0_ = (bitField0_ & ~0x00000008);
       return this;
     }
 
     @Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_Response_descriptor;
+      return io.siddhi.extension.map.protobuf.grpc.Sample.internal_static_RequestWithList_descriptor;
     }
 
     @Override
-    public io.siddhi.extension.map.protobuf.grpc.Response getDefaultInstanceForType() {
-      return io.siddhi.extension.map.protobuf.grpc.Response.getDefaultInstance();
+    public io.siddhi.extension.map.protobuf.grpc.RequestWithList getDefaultInstanceForType() {
+      return io.siddhi.extension.map.protobuf.grpc.RequestWithList.getDefaultInstance();
     }
 
     @Override
-    public io.siddhi.extension.map.protobuf.grpc.Response build() {
-      io.siddhi.extension.map.protobuf.grpc.Response result = buildPartial();
+    public io.siddhi.extension.map.protobuf.grpc.RequestWithList build() {
+      io.siddhi.extension.map.protobuf.grpc.RequestWithList result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -474,14 +500,23 @@ private static final long serialVersionUID = 0L;
     }
 
     @Override
-    public io.siddhi.extension.map.protobuf.grpc.Response buildPartial() {
-      io.siddhi.extension.map.protobuf.grpc.Response result = new io.siddhi.extension.map.protobuf.grpc.Response(this);
+    public io.siddhi.extension.map.protobuf.grpc.RequestWithList buildPartial() {
+      io.siddhi.extension.map.protobuf.grpc.RequestWithList result = new io.siddhi.extension.map.protobuf.grpc.RequestWithList(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
       result.stringValue_ = stringValue_;
       result.intValue_ = intValue_;
-      result.longValue_ = longValue_;
-      result.booleanValue_ = booleanValue_;
-      result.floatValue_ = floatValue_;
-      result.doubleValue_ = doubleValue_;
+      if (((bitField0_ & 0x00000004) != 0)) {
+        stringList_ = stringList_.getUnmodifiableView();
+        bitField0_ = (bitField0_ & ~0x00000004);
+      }
+      result.stringList_ = stringList_;
+      if (((bitField0_ & 0x00000008) != 0)) {
+        intList_.makeImmutable();
+        bitField0_ = (bitField0_ & ~0x00000008);
+      }
+      result.intList_ = intList_;
+      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -520,16 +555,16 @@ private static final long serialVersionUID = 0L;
     }
     @Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof io.siddhi.extension.map.protobuf.grpc.Response) {
-        return mergeFrom((io.siddhi.extension.map.protobuf.grpc.Response)other);
+      if (other instanceof io.siddhi.extension.map.protobuf.grpc.RequestWithList) {
+        return mergeFrom((io.siddhi.extension.map.protobuf.grpc.RequestWithList)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(io.siddhi.extension.map.protobuf.grpc.Response other) {
-      if (other == io.siddhi.extension.map.protobuf.grpc.Response.getDefaultInstance()) return this;
+    public Builder mergeFrom(io.siddhi.extension.map.protobuf.grpc.RequestWithList other) {
+      if (other == io.siddhi.extension.map.protobuf.grpc.RequestWithList.getDefaultInstance()) return this;
       if (!other.getStringValue().isEmpty()) {
         stringValue_ = other.stringValue_;
         onChanged();
@@ -537,17 +572,25 @@ private static final long serialVersionUID = 0L;
       if (other.getIntValue() != 0) {
         setIntValue(other.getIntValue());
       }
-      if (other.getLongValue() != 0L) {
-        setLongValue(other.getLongValue());
+      if (!other.stringList_.isEmpty()) {
+        if (stringList_.isEmpty()) {
+          stringList_ = other.stringList_;
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          ensureStringListIsMutable();
+          stringList_.addAll(other.stringList_);
+        }
+        onChanged();
       }
-      if (other.getBooleanValue() != false) {
-        setBooleanValue(other.getBooleanValue());
-      }
-      if (other.getFloatValue() != 0F) {
-        setFloatValue(other.getFloatValue());
-      }
-      if (other.getDoubleValue() != 0D) {
-        setDoubleValue(other.getDoubleValue());
+      if (!other.intList_.isEmpty()) {
+        if (intList_.isEmpty()) {
+          intList_ = other.intList_;
+          bitField0_ = (bitField0_ & ~0x00000008);
+        } else {
+          ensureIntListIsMutable();
+          intList_.addAll(other.intList_);
+        }
+        onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -564,11 +607,11 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      io.siddhi.extension.map.protobuf.grpc.Response parsedMessage = null;
+      io.siddhi.extension.map.protobuf.grpc.RequestWithList parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (io.siddhi.extension.map.protobuf.grpc.Response) e.getUnfinishedMessage();
+        parsedMessage = (io.siddhi.extension.map.protobuf.grpc.RequestWithList) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -577,6 +620,7 @@ private static final long serialVersionUID = 0L;
       }
       return this;
     }
+    private int bitField0_;
 
     private Object stringValue_ = "";
     /**
@@ -673,106 +717,163 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private long longValue_ ;
-    /**
-     * <code>int64 LongValue = 3;</code>
-     */
-    public long getLongValue() {
-      return longValue_;
+    private com.google.protobuf.LazyStringList stringList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    private void ensureStringListIsMutable() {
+      if (!((bitField0_ & 0x00000004) != 0)) {
+        stringList_ = new com.google.protobuf.LazyStringArrayList(stringList_);
+        bitField0_ |= 0x00000004;
+       }
     }
     /**
-     * <code>int64 LongValue = 3;</code>
+     * <code>repeated string stringList = 3;</code>
      */
-    public Builder setLongValue(long value) {
-
-      longValue_ = value;
+    public com.google.protobuf.ProtocolStringList
+        getStringListList() {
+      return stringList_.getUnmodifiableView();
+    }
+    /**
+     * <code>repeated string stringList = 3;</code>
+     */
+    public int getStringListCount() {
+      return stringList_.size();
+    }
+    /**
+     * <code>repeated string stringList = 3;</code>
+     */
+    public String getStringList(int index) {
+      return stringList_.get(index);
+    }
+    /**
+     * <code>repeated string stringList = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getStringListBytes(int index) {
+      return stringList_.getByteString(index);
+    }
+    /**
+     * <code>repeated string stringList = 3;</code>
+     */
+    public Builder setStringList(
+        int index, String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureStringListIsMutable();
+      stringList_.set(index, value);
       onChanged();
       return this;
     }
     /**
-     * <code>int64 LongValue = 3;</code>
+     * <code>repeated string stringList = 3;</code>
      */
-    public Builder clearLongValue() {
-
-      longValue_ = 0L;
-      onChanged();
-      return this;
-    }
-
-    private boolean booleanValue_ ;
-    /**
-     * <code>bool booleanValue = 4;</code>
-     */
-    public boolean getBooleanValue() {
-      return booleanValue_;
-    }
-    /**
-     * <code>bool booleanValue = 4;</code>
-     */
-    public Builder setBooleanValue(boolean value) {
-
-      booleanValue_ = value;
+    public Builder addStringList(
+        String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureStringListIsMutable();
+      stringList_.add(value);
       onChanged();
       return this;
     }
     /**
-     * <code>bool booleanValue = 4;</code>
+     * <code>repeated string stringList = 3;</code>
      */
-    public Builder clearBooleanValue() {
-
-      booleanValue_ = false;
-      onChanged();
-      return this;
-    }
-
-    private float floatValue_ ;
-    /**
-     * <code>float floatValue = 5;</code>
-     */
-    public float getFloatValue() {
-      return floatValue_;
-    }
-    /**
-     * <code>float floatValue = 5;</code>
-     */
-    public Builder setFloatValue(float value) {
-
-      floatValue_ = value;
+    public Builder addAllStringList(
+        Iterable<String> values) {
+      ensureStringListIsMutable();
+      com.google.protobuf.AbstractMessageLite.Builder.addAll(
+          values, stringList_);
       onChanged();
       return this;
     }
     /**
-     * <code>float floatValue = 5;</code>
+     * <code>repeated string stringList = 3;</code>
      */
-    public Builder clearFloatValue() {
-
-      floatValue_ = 0F;
-      onChanged();
-      return this;
-    }
-
-    private double doubleValue_ ;
-    /**
-     * <code>double doubleValue = 6;</code>
-     */
-    public double getDoubleValue() {
-      return doubleValue_;
-    }
-    /**
-     * <code>double doubleValue = 6;</code>
-     */
-    public Builder setDoubleValue(double value) {
-
-      doubleValue_ = value;
+    public Builder clearStringList() {
+      stringList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000004);
       onChanged();
       return this;
     }
     /**
-     * <code>double doubleValue = 6;</code>
+     * <code>repeated string stringList = 3;</code>
      */
-    public Builder clearDoubleValue() {
+    public Builder addStringListBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      ensureStringListIsMutable();
+      stringList_.add(value);
+      onChanged();
+      return this;
+    }
 
-      doubleValue_ = 0D;
+    private com.google.protobuf.Internal.IntList intList_ = emptyIntList();
+    private void ensureIntListIsMutable() {
+      if (!((bitField0_ & 0x00000008) != 0)) {
+        intList_ = mutableCopy(intList_);
+        bitField0_ |= 0x00000008;
+       }
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public java.util.List<Integer>
+        getIntListList() {
+      return ((bitField0_ & 0x00000008) != 0) ?
+               java.util.Collections.unmodifiableList(intList_) : intList_;
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public int getIntListCount() {
+      return intList_.size();
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public int getIntList(int index) {
+      return intList_.getInt(index);
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public Builder setIntList(
+        int index, int value) {
+      ensureIntListIsMutable();
+      intList_.setInt(index, value);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public Builder addIntList(int value) {
+      ensureIntListIsMutable();
+      intList_.addInt(value);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public Builder addAllIntList(
+        Iterable<? extends Integer> values) {
+      ensureIntListIsMutable();
+      com.google.protobuf.AbstractMessageLite.Builder.addAll(
+          values, intList_);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated int32 intList = 4;</code>
+     */
+    public Builder clearIntList() {
+      intList_ = emptyIntList();
+      bitField0_ = (bitField0_ & ~0x00000008);
       onChanged();
       return this;
     }
@@ -789,41 +890,41 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:Response)
+    // @@protoc_insertion_point(builder_scope:RequestWithList)
   }
 
-  // @@protoc_insertion_point(class_scope:Response)
-  private static final io.siddhi.extension.map.protobuf.grpc.Response DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:RequestWithList)
+  private static final io.siddhi.extension.map.protobuf.grpc.RequestWithList DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new io.siddhi.extension.map.protobuf.grpc.Response();
+    DEFAULT_INSTANCE = new io.siddhi.extension.map.protobuf.grpc.RequestWithList();
   }
 
-  public static io.siddhi.extension.map.protobuf.grpc.Response getDefaultInstance() {
+  public static io.siddhi.extension.map.protobuf.grpc.RequestWithList getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Response>
-      PARSER = new com.google.protobuf.AbstractParser<Response>() {
+  private static final com.google.protobuf.Parser<RequestWithList>
+      PARSER = new com.google.protobuf.AbstractParser<RequestWithList>() {
     @Override
-    public Response parsePartialFrom(
+    public RequestWithList parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new Response(input, extensionRegistry);
+      return new RequestWithList(input, extensionRegistry);
     }
   };
 
-  public static com.google.protobuf.Parser<Response> parser() {
+  public static com.google.protobuf.Parser<RequestWithList> parser() {
     return PARSER;
   }
 
   @Override
-  public com.google.protobuf.Parser<Response> getParserForType() {
+  public com.google.protobuf.Parser<RequestWithList> getParserForType() {
     return PARSER;
   }
 
   @Override
-  public io.siddhi.extension.map.protobuf.grpc.Response getDefaultInstanceForType() {
+  public io.siddhi.extension.map.protobuf.grpc.RequestWithList getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

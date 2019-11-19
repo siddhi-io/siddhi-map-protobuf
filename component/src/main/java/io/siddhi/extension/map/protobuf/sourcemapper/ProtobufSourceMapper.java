@@ -16,6 +16,7 @@
 package io.siddhi.extension.map.protobuf.sourcemapper;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.MapField;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
@@ -48,6 +49,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getMethodName
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getRPCmethodList;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceName;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
+import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toLowerCamelCase;
 
 /**
  * Protobuf SinkMapper converts protobuf message objects in to siddhi events.
@@ -229,7 +231,7 @@ public class ProtobufSourceMapper extends SourceMapper {
                         "receiver.url or publisher.url should be given. But found neither");
             }
         } else {
-            log.info(siddhiAppName + ":" + streamID + ": Not a grpc source, getting the protobuf class name from " +
+            log.debug(siddhiAppName + ":" + streamID + ": Not a grpc source, getting the protobuf class name from " +
                     "'class' parameter");
             if (userProvidedClassName == null) {
                 throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + "No class name provided in the " +
@@ -291,58 +293,53 @@ public class ProtobufSourceMapper extends SourceMapper {
 
     private void initializeGetterMethods(StreamDefinition streamDefinition, Class messageObjectClass,
                                          List<AttributeMapping> attributeMappingList) {
-        if (attributeMappingList.size() == 0) { //if no mapping is available
-            for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
-                Attribute attribute = streamDefinition.getAttributeList().get(i);
-                String attributeName = attribute.getName();
-                attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-                Attribute.Type attributeType = attribute.getType();
-                Method getter;
-                try {
-                    if (attributeType == Attribute.Type.OBJECT) {
-                        getter = messageObjectClass.getDeclaredMethod(
-                                GrpcConstants.GETTER + attributeName + GrpcConstants.MAP_NAME);
-                    } else {
-                        getter = messageObjectClass.getDeclaredMethod(GrpcConstants.GETTER + attributeName);
-                    }
+        String attributeName = null;
+        try {
+            if (attributeMappingList.size() == 0) { //if no mapping is available
+                for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
+                    Attribute attribute = streamDefinition.getAttributeList().get(i);
+                    attributeName = attribute.getName();
+                    Attribute.Type attributeType = attribute.getType();
+                    Method getter = getGetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionData(i, getter));
-                } catch (NoSuchMethodException e) {
-                    Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
-                    attributeName = attributeName.substring(0, 1).toLowerCase() + attributeName.substring(1);
-                    throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + " Attribute name or type " +
-                            "does not match with protobuf variable or type. Provided attribute \"'" + attributeName +
-                            "': " + attributeType + "\". Expected one of these attributes "
-                            + protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
                 }
+            } else {
+                for (int i = 0; i < attributeMappingList.size(); i++) {
+                    AttributeMapping attributeMapping = attributeMappingList.get(i);
+                    attributeName = attributeMapping.getMapping();
+                    int position = attributeMapping.getPosition();
+                    Attribute.Type attributeType = streamDefinition.getAttributeList().get(i).getType();
+                    Method getter = getGetterMethod(attributeType, attributeName);
+                    mappingPositionDataList.add(new MappingPositionData(position, getter));
+                }
+            }
+        } catch (NoSuchMethodException | NoSuchFieldException e) {
+            Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
+            throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + "Attribute name or type do " +
+                    "not match with protobuf variable or type. provided attribute '" + attributeName +
+                    "'. Expected one of these attributes " +
+                    protobufFieldsWithTypes(fields) + ".", e);
+        }
+    }
+
+    private Method getGetterMethod(Attribute.Type attributeType, String attributeName)
+            throws NoSuchMethodException, NoSuchFieldException {
+        if (attributeType == Attribute.Type.OBJECT) {
+            if (List.class.isAssignableFrom(messageObjectClass.getDeclaredField(attributeName + "_")
+                    .getType())) {
+                return messageObjectClass.getDeclaredMethod(
+                        GrpcConstants.GETTER + toLowerCamelCase(attributeName) + GrpcConstants.LIST_NAME);
+            } else if (MapField.class.isAssignableFrom(messageObjectClass.getDeclaredField(attributeName + "_")
+                    .getType())) {
+                return messageObjectClass.getDeclaredMethod(
+                        GrpcConstants.GETTER + toLowerCamelCase(attributeName) + GrpcConstants.MAP_NAME);
+            } else {
+                throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' " +
+                        "or 'list' with 'object' data type");
             }
         } else {
-            for (int i = 0; i < attributeMappingList.size(); i++) {
-                AttributeMapping attributeMapping = attributeMappingList.get(i);
-                String attributeName = attributeMapping.getMapping();
-                int position = attributeMapping.getPosition();
-                Attribute.Type attributeType = streamDefinition.getAttributeList().get(i).getType();
-                attributeName = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
-                Method getter;
-                try {
-                    if (attributeType == Attribute.Type.OBJECT) {
-                        getter = messageObjectClass.getDeclaredMethod(
-                                GrpcConstants.GETTER + attributeName + GrpcConstants.MAP_NAME);
-                    } else {
-                        getter = messageObjectClass.getDeclaredMethod(GrpcConstants.GETTER + attributeName);
-                    }
-                    mappingPositionDataList.add(new MappingPositionData(position, getter));
-                } catch (NoSuchMethodException e) {
-                    Field[] fields = messageBuilderObject.getClass().getDeclaredFields();
-                    String attributeTypeName = attributeType.name(); // this will not throw null pointer exception
-                    if (attributeType == Attribute.Type.OBJECT) {
-                        attributeTypeName = "Map";
-                    }
-                    throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + "Attribute name or type do " +
-                            "not match with protobuf variable or type. provided attribute \"'" + attributeName + "' :" +
-                            " " + attributeTypeName + "\". Expected one of these attributes " +
-                            protobufFieldsWithTypes(fields) + "," + e.getMessage(), e);
-                }
-            }
+            return messageObjectClass.getDeclaredMethod(GrpcConstants.GETTER + toLowerCamelCase(
+                    attributeName));
         }
     }
 

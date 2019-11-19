@@ -9,7 +9,7 @@ package io.siddhi.extension.map.protobuf.grpc;
 public  final class Request extends
     com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:Request)
-    RequestOrBuilder {
+        RequestOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use Request.newBuilder() to construct.
   private Request(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
@@ -461,7 +461,7 @@ private static final long serialVersionUID = 0L;
 
     @Override
     public io.siddhi.extension.map.protobuf.grpc.Request getDefaultInstanceForType() {
-      return getDefaultInstance();
+      return io.siddhi.extension.map.protobuf.grpc.Request.getDefaultInstance();
     }
 
     @Override
@@ -529,7 +529,7 @@ private static final long serialVersionUID = 0L;
     }
 
     public Builder mergeFrom(io.siddhi.extension.map.protobuf.grpc.Request other) {
-      if (other == getDefaultInstance()) return this;
+      if (other == io.siddhi.extension.map.protobuf.grpc.Request.getDefaultInstance()) return this;
       if (!other.getStringValue().isEmpty()) {
         stringValue_ = other.stringValue_;
         onChanged();
