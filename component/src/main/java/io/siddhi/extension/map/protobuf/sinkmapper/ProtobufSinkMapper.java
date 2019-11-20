@@ -306,7 +306,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                 for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
                     attributeType = streamDefinition.getAttributeList().get(i).getType(); //get attribute type
                     attributeName = streamDefinition.getAttributeNameArray()[i]; //get attribute name
-                    Method setterMethod = setSetterMethod(attributeType, attributeName);
+                    Method setterMethod = getSetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionData(setterMethod, i));
                 }
             } else {
@@ -315,7 +315,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                 for (int i = 0; i < templateBuilderMap.size(); i++) {
                     attributeName = mapKeySetList.get(i); //get attribute name
                     attributeType = templateBuilderMap.get(attributeName).getType();
-                    Method setterMethod = setSetterMethod(attributeType, attributeName);
+                    Method setterMethod = getSetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionDataWithTemplateBuilder(setterMethod,
                             templateBuilderMap.get(mapKeySetList.get(i))));
                 }
@@ -329,22 +329,22 @@ public class ProtobufSinkMapper extends SinkMapper {
         }
     }
 
-    private Method setSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
+    private Method getSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
             NoSuchMethodException {
         if (attributeType == Attribute.Type.OBJECT) {
             if (List.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
-                    attributeName + "_").getType())) { // check if list or not
+                    attributeName + ProtobufConstants.UNDERSCORE).getType())) { // check if list or not
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants
                         .ADDALL_METHOD + toLowerCamelCase(attributeName), Iterable.class);
             } else if (MapField.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
-                    attributeName + "_").getType())) { //check if map or not
+                    attributeName + ProtobufConstants.UNDERSCORE).getType())) { //check if map or not
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants
                         .PUTALL_METHOD + toLowerCamelCase(attributeName), java.util.Map.class);
             } else if (GeneratedMessageV3.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
-                    attributeName + "_").getType())) {
+                    attributeName + ProtobufConstants.UNDERSCORE).getType())) {
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER +
                         toLowerCamelCase(attributeName), messageBuilderObject.getClass().getDeclaredField(
-                                attributeName + "_").getType());
+                                attributeName + ProtobufConstants.UNDERSCORE).getType());
             } else {
                 throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
                         " 'another message type' with 'object' data type");
@@ -356,7 +356,8 @@ public class ProtobufSinkMapper extends SinkMapper {
     }
 
     /**
-     * Clear the message object, otherwise list keep adding to the same object without cleaning the previous values.
+     * Clear the message object, otherwise list will keep adding data to the same object without cleaning the previous
+     * values.
      */
     private void clearMessageBuilderObject() {
         try {
