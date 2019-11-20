@@ -66,7 +66,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toLowerCamelC
                 " To work with this mapper you have to add auto-generated protobuf classes to the project classpath." +
                 " When you use this output mapper, you can either define stream attributes as the same names as the " +
                 "protobuf message attributes or you can use custom mapping to map stream definition attributes with " +
-                "the protobuf attributes..Please find the sample proto definition [here](https://github.com/siddhi-io" +
+                "the protobuf attributes.Please find the sample proto definition [here](https://github.com/siddhi-io" +
                 "/siddhi-map-protobuf/tree/master/component/src/main/resources/sample.proto) "
         ,
         parameters = {
