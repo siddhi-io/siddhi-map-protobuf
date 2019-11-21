@@ -34,10 +34,11 @@ pages:
 - Information: index.md
 - API Docs:
   - latest: api/latest.md
+  - 1.0.3: api/1.0.3.md
   - 1.0.2: api/1.0.2.md
   - 1.0.1: api/1.0.1.md
-  - 1.0.0: api/1.0.0.md
   - 1.0.0-beta: api/1.0.0-beta.md
+  - 1.0.0: api/1.0.0.md
   - ? ''
     : api/.md
 - License: license.md
