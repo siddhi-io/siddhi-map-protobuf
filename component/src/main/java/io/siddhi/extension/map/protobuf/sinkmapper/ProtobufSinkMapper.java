@@ -31,7 +31,7 @@ import io.siddhi.core.stream.output.sink.SinkMapper;
 import io.siddhi.core.util.config.ConfigReader;
 import io.siddhi.core.util.transport.OptionHolder;
 import io.siddhi.core.util.transport.TemplateBuilder;
-import io.siddhi.extension.map.protobuf.utils.GrpcConstants;
+import io.siddhi.extension.map.protobuf.utils.ProtobufConstants;
 import io.siddhi.extension.map.protobuf.utils.ProtobufUtils;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.definition.StreamDefinition;
@@ -66,7 +66,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toLowerCamelC
                 " To work with this mapper you have to add auto-generated protobuf classes to the project classpath." +
                 " When you use this output mapper, you can either define stream attributes as the same names as the " +
                 "protobuf message attributes or you can use custom mapping to map stream definition attributes with " +
-                "the protobuf attributes..Please find the sample proto definition [here](https://github.com/siddhi-io" +
+                "the protobuf attributes.Please find the sample proto definition [here](https://github.com/siddhi-io" +
                 "/siddhi-map-protobuf/tree/master/component/src/main/resources/sample.proto) "
         ,
         parameters = {
@@ -151,28 +151,28 @@ public class ProtobufSinkMapper extends SinkMapper {
         this.streamID = streamDefinition.getId();
         mappingPositionDataList = new ArrayList<>();
         String userProvidedClassName = null;
-        if (optionHolder.isOptionExists(GrpcConstants.CLASS_OPTION_HOLDER)) {
-            userProvidedClassName = optionHolder.validateAndGetOption(GrpcConstants.CLASS_OPTION_HOLDER).getValue();
+        if (optionHolder.isOptionExists(ProtobufConstants.CLASS_OPTION_HOLDER)) {
+            userProvidedClassName = optionHolder.validateAndGetOption(ProtobufConstants.CLASS_OPTION_HOLDER).getValue();
         }
         Class messageObjectClass;
-        if (sinkType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
-            if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)
+        if (sinkType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
+            if (ProtobufConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)
                     && templateBuilderMap.size() == 0) {
                 throw new SiddhiAppCreationException(" No mapping found at @Map, mapping is required to continue " +
                         "for Siddhi App " + siddhiAppName); //grpc-service-response should have a mapping
             }
             String url = null;
-            if (sinkOptionHolder.isOptionExists(GrpcConstants.PUBLISHER_URL)) {
-                url = sinkOptionHolder.validateAndGetStaticValue(GrpcConstants.PUBLISHER_URL);
+            if (sinkOptionHolder.isOptionExists(ProtobufConstants.PUBLISHER_URL)) {
+                url = sinkOptionHolder.validateAndGetStaticValue(ProtobufConstants.PUBLISHER_URL);
             }
             if (url != null) {
                 URL aURL;
                 try {
-                    if (!url.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+                    if (!url.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
                         throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": The url must " +
-                                "begin with \"" + GrpcConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
+                                "begin with \"" + ProtobufConstants.GRPC_PROTOCOL_NAME + "\" for all grpc sinks");
                     }
-                    aURL = new URL(GrpcConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
+                    aURL = new URL(ProtobufConstants.DUMMY_PROTOCOL_NAME + url.substring(4));
                 } catch (MalformedURLException e) {
                     throw new SiddhiAppValidationException(siddhiAppName + ": " + streamID + ": Error in URL format." +
                             " Expected format is `grpc://0.0.0.0:9763/<serviceName>/<methodName>` but the provided " +
@@ -185,19 +185,21 @@ public class ProtobufSinkMapper extends SinkMapper {
                     String capitalizedFirstLetterMethodName = methodReference.substring(0, 1).toUpperCase() +
                             methodReference.substring(1);
                     Field methodDescriptor = Class.forName(fullQualifiedServiceReference
-                            + GrpcConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
-                            (GrpcConstants.GETTER + capitalizedFirstLetterMethodName + GrpcConstants.METHOD_NAME);
+                            + ProtobufConstants.GRPC_PROTOCOL_NAME_UPPERCAMELCASE).getDeclaredField
+                            (ProtobufConstants.GETTER + capitalizedFirstLetterMethodName +
+                                    ProtobufConstants.METHOD_NAME);
                     ParameterizedType parameterizedType = (ParameterizedType) methodDescriptor.getGenericType();
-                    if (GrpcConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)) {
+                    if (ProtobufConstants.GRPC_SERVICE_RESPONSE_SINK_NAME.equalsIgnoreCase(sinkType)) {
                         messageObjectClass = (Class) parameterizedType.
-                                getActualTypeArguments()[GrpcConstants.RESPONSE_CLASS_POSITION];
+                                getActualTypeArguments()[ProtobufConstants.RESPONSE_CLASS_POSITION];
                     } else {
                         messageObjectClass = (Class) parameterizedType.
-                                getActualTypeArguments()[GrpcConstants.REQUEST_CLASS_POSITION];
+                                getActualTypeArguments()[ProtobufConstants.REQUEST_CLASS_POSITION];
                     }
                     if (userProvidedClassName != null) {
-                        if (url.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) { /*only if sink is a grpc
-                        type, check for both user provided class name and the required class name*/
+                        if (url.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
+                            /*only if sink is a grpc type, check for both user provided class name and the required
+                            class name*/
                             if (!messageObjectClass.getName().equals(userProvidedClassName)) {
                                 throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID +
                                         ": provided class name does not match with the original mapping class, " +
@@ -206,8 +208,8 @@ public class ProtobufSinkMapper extends SinkMapper {
                             }
                         }
                     }
-                    Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
-                    // create an builder object of message class
+                    Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME);
+                    //to create an builder object of message class
                     messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the object
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                         NoSuchFieldException e) {
@@ -232,7 +234,7 @@ public class ProtobufSinkMapper extends SinkMapper {
             }
             try {
                 messageObjectClass = Class.forName(userProvidedClassName);
-                Method builderMethod = messageObjectClass.getDeclaredMethod(GrpcConstants.NEW_BUILDER_NAME); //to
+                Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME); //to
                 // create an builder object of message class
                 messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
@@ -277,14 +279,14 @@ public class ProtobufSinkMapper extends SinkMapper {
             }
         }
         try {
-            Method buildMethod = messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.BUILD_METHOD);
+            Method buildMethod = messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.BUILD_METHOD);
             Object messageObject = buildMethod.invoke(messageBuilderObject); //get the message object by invoking
             // build() method
-            if (sinkType.toLowerCase().startsWith(GrpcConstants.GRPC_PROTOCOL_NAME)) {
+            if (sinkType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
                 sinkListener.publish(messageObject);
             } else {
                 byte[] messageObjectByteArray = (byte[]) AbstractMessageLite.class
-                        .getDeclaredMethod(GrpcConstants.TO_BYTE_ARRAY).invoke(messageObject);
+                        .getDeclaredMethod(ProtobufConstants.TO_BYTE_ARRAY).invoke(messageObject);
                 sinkListener.publish(messageObjectByteArray);
                 clearMessageBuilderObject();
             }
@@ -304,7 +306,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                 for (int i = 0; i < streamDefinition.getAttributeList().size(); i++) {
                     attributeType = streamDefinition.getAttributeList().get(i).getType(); //get attribute type
                     attributeName = streamDefinition.getAttributeNameArray()[i]; //get attribute name
-                    Method setterMethod = setSetterMethod(attributeType, attributeName);
+                    Method setterMethod = getSetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionData(setterMethod, i));
                 }
             } else {
@@ -313,7 +315,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                 for (int i = 0; i < templateBuilderMap.size(); i++) {
                     attributeName = mapKeySetList.get(i); //get attribute name
                     attributeType = templateBuilderMap.get(attributeName).getType();
-                    Method setterMethod = setSetterMethod(attributeType, attributeName);
+                    Method setterMethod = getSetterMethod(attributeType, attributeName);
                     mappingPositionDataList.add(new MappingPositionDataWithTemplateBuilder(setterMethod,
                             templateBuilderMap.get(mapKeySetList.get(i))));
                 }
@@ -327,27 +329,36 @@ public class ProtobufSinkMapper extends SinkMapper {
         }
     }
 
-    private Method setSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
+    private Method getSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
             NoSuchMethodException {
         if (attributeType == Attribute.Type.OBJECT) {
             if (List.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
-                    attributeName + "_").getType())) { // check if list or not
-                return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants
+                    attributeName + ProtobufConstants.UNDERSCORE).getType())) { // check if list or not
+                return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants
                         .ADDALL_METHOD + toLowerCamelCase(attributeName), Iterable.class);
             } else if (MapField.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
-                    attributeName + "_").getType())) { //check if map or not
-                return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants
+                    attributeName + ProtobufConstants.UNDERSCORE).getType())) { //check if map or not
+                return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants
                         .PUTALL_METHOD + toLowerCamelCase(attributeName), java.util.Map.class);
+            } else if (GeneratedMessageV3.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
+                    attributeName + ProtobufConstants.UNDERSCORE).getType())) {
+                return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER +
+                        toLowerCamelCase(attributeName), messageBuilderObject.getClass().getDeclaredField(
+                                attributeName + ProtobufConstants.UNDERSCORE).getType());
             } else {
-                throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' " +
-                        "or 'list' with 'object' data type");
+                throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
+                        " 'another message type' with 'object' data type");
             }
         } else {
-            return messageBuilderObject.getClass().getDeclaredMethod(GrpcConstants.SETTER + toLowerCamelCase(
+            return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER + toLowerCamelCase(
                     attributeName), ProtobufUtils.getDataType(attributeType));
         }
     }
 
+    /**
+     * Clear the message object, otherwise list will keep adding data to the same object without cleaning the previous
+     * values.
+     */
     private void clearMessageBuilderObject() {
         try {
             messageBuilderObject.getClass().getDeclaredMethod("clear").invoke(messageBuilderObject);
@@ -359,7 +370,7 @@ public class ProtobufSinkMapper extends SinkMapper {
 
     private static class MappingPositionData {
         private Method messageObjectSetterMethod;
-        private int position; //this attribute can be removed
+        private int position;
 
         private MappingPositionData(Method messageObjectSetterMethod, int position) {
             this.messageObjectSetterMethod = messageObjectSetterMethod;

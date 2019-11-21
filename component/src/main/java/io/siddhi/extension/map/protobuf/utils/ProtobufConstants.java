@@ -20,7 +20,7 @@ package io.siddhi.extension.map.protobuf.utils;
 /**
  * Class to hold the constants used by protobuf source and sink mapper.
  */
-public class GrpcConstants {
+public class ProtobufConstants {
 
     public static final String PUBLISHER_URL = "publisher.url";
     public static final String RECEIVER_URL = "receiver.url";
@@ -46,11 +46,12 @@ public class GrpcConstants {
     public static final String PUTALL_METHOD = "putAll";
     public static final String ADDALL_METHOD = "addAll";
     public static final String METHOD_NAME = "Method";
+    public static final String UNDERSCORE = "_";
     public static final int PATH_SERVICE_NAME_POSITION = 0;
     public static final int PATH_METHOD_NAME_POSITION = 1;
     public static final int REQUEST_CLASS_POSITION = 0;
     public static final int RESPONSE_CLASS_POSITION = 1;
-    private GrpcConstants() {
+    private ProtobufConstants() {
     }
 
 
