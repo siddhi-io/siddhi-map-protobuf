@@ -26,7 +26,7 @@
     </parent>
     <groupId>io.siddhi.extension.map.protobuf</groupId>
     <artifactId>siddhi-map-protobuf-parent</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
     <name>Siddhi map protobuf</name>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -40,7 +40,7 @@
         <url>https://github.com/siddhi-io/siddhi-map-protobuf.git</url>
         <developerConnection>scm:git:https://github.com/siddhi-io/siddhi-map-protobuf.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v1.0.3</tag>
     </scm>
 
     <dependencyManagement>
