@@ -46,19 +46,6 @@
             <artifactId>siddhi-query-compiler</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${io.grpc.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
         </dependency>
@@ -155,12 +142,11 @@
                             io.siddhi.core.*;version="${siddhi.version.range}",
                             io.siddhi.annotation.*;version="${siddhi.version.range}",
                             io.siddhi.query.api.*;version="${siddhi.version.range}",
-                            *;resolution:=optional
+                            com.google.protobuf.*;version="${com.google.protobuf.version.range}
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Include-Resource>
-                            META-INF=target/classes/META-INF,
-                            {maven-resources}
+                            META-INF=target/classes/META-INF
                         </Include-Resource>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
@@ -173,33 +159,6 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.1</version>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}</protocArtifact>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.21.0:exe:${os.detected.classifier}</pluginArtifact>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>${basedir}/src/test/resources/generated.jar</additionalClasspathElement>
-                    </additionalClasspathElements>
                 </configuration>
             </plugin>
         </plugins>
