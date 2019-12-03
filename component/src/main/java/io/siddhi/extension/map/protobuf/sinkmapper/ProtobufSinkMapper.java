@@ -52,7 +52,8 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getMethodName
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getRPCmethodList;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceName;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
-import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toLowerCamelCase;
+import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.removeUnderscore;
+import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toUpperCamelCase;
 
 /**
  * Protobuf SinkMapper converts siddhi events in to protobuf message objects.
@@ -331,26 +332,27 @@ public class ProtobufSinkMapper extends SinkMapper {
 
     private Method getSetterMethod(Attribute.Type attributeType, String attributeName) throws NoSuchFieldException,
             NoSuchMethodException {
+        attributeName = removeUnderscore(attributeName);
         if (attributeType == Attribute.Type.OBJECT) {
             if (List.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
                     attributeName + ProtobufConstants.UNDERSCORE).getType())) { // check if list or not
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants
-                        .ADDALL_METHOD + toLowerCamelCase(attributeName), Iterable.class);
+                        .ADDALL_METHOD + toUpperCamelCase(attributeName), Iterable.class);
             } else if (MapField.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
                     attributeName + ProtobufConstants.UNDERSCORE).getType())) { //check if map or not
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants
-                        .PUTALL_METHOD + toLowerCamelCase(attributeName), java.util.Map.class);
+                        .PUTALL_METHOD + toUpperCamelCase(attributeName), java.util.Map.class);
             } else if (GeneratedMessageV3.class.isAssignableFrom(messageBuilderObject.getClass().getDeclaredField(
                     attributeName + ProtobufConstants.UNDERSCORE).getType())) {
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER +
-                        toLowerCamelCase(attributeName), messageBuilderObject.getClass().getDeclaredField(
+                        toUpperCamelCase(attributeName), messageBuilderObject.getClass().getDeclaredField(
                                 attributeName + ProtobufConstants.UNDERSCORE).getType());
             } else {
                 throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
                         " 'another message type' with 'object' data type");
             }
         } else {
-            return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER + toLowerCamelCase(
+            return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER + toUpperCamelCase(
                     attributeName), ProtobufUtils.getDataType(attributeType));
         }
     }
