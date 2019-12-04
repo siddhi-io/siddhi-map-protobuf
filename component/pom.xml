@@ -142,7 +142,7 @@
                             io.siddhi.core.*;version="${siddhi.version.range}",
                             io.siddhi.annotation.*;version="${siddhi.version.range}",
                             io.siddhi.query.api.*;version="${siddhi.version.range}",
-                            com.google.protobuf.*;version="${com.google.protobuf.version.range}
+                            *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Include-Resource>
