@@ -27,7 +27,8 @@ Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-m
 
 ## Dependencies 
 
-There are no other dependencies needed for this extension. 
+Add following protobuf jar into {SIDDHI_HOME}/bundles
+* <a target="_blank" href="https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.9.1">protobuf-java-3.9.1.jar</a>
 
 ## Installation
 

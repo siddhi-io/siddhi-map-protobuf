@@ -81,3 +81,8 @@ message NestedMessage {
     Inner innerObject = 3;
     repeated Inner innerList = 4;
 }
+
+message MessageWithUnderscore {
+    string string_value = 1;
+    int32 int_value = 2;
+}

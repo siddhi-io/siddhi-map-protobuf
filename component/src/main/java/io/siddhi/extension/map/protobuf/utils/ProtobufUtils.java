@@ -132,7 +132,30 @@ public class ProtobufUtils {
         return rpcMethodNameList;
     }
 
-    public static String toLowerCamelCase(String attributeName) {
+    public static String toUpperCamelCase(String attributeName) {
        return attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+    }
+
+    /**
+     *
+     * @param attributeName
+     * @return a String with replacing underscores with uppercase letters.
+     */
+    public static String removeUnderscore(String attributeName) {
+        StringBuilder sb = new StringBuilder();
+        boolean capitalizeNext = false;
+        for (char c :attributeName.toCharArray()) {
+            if (c == '_') {
+                capitalizeNext = true;
+            } else {
+                if (capitalizeNext) {
+                    sb.append(Character.toUpperCase(c));
+                    capitalizeNext = false;
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+        return sb.toString();
     }
 }
