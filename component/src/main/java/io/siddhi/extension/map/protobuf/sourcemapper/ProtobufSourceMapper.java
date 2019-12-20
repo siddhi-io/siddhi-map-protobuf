@@ -31,6 +31,7 @@ import io.siddhi.core.stream.input.source.SourceMapper;
 import io.siddhi.core.util.config.ConfigReader;
 import io.siddhi.core.util.transport.OptionHolder;
 import io.siddhi.extension.map.protobuf.utils.ProtobufConstants;
+import io.siddhi.extension.map.protobuf.utils.ProtobufUtils;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.definition.StreamDefinition;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
@@ -165,11 +166,16 @@ public class ProtobufSourceMapper extends SourceMapper {
             if (ProtobufConstants.GRPC_SERVICE_SOURCE_NAME.equalsIgnoreCase(sourceType)
                     && attributeMappingList.size() == 0) {
                 throw new SiddhiAppCreationException("No mapping found at @Map, mapping should be available to " +
-                        "continue for Siddhi App " + siddhiAppName); //grpc-service-source should have a mapping
+                        "continue for Siddhi App " + siddhiAppName); //grpc-service should have a mapping
             }
             String url = null;
             if (sourceOptionHolder.isOptionExists(ProtobufConstants.RECEIVER_URL)) {
                 url = sourceOptionHolder.validateAndGetStaticValue(ProtobufConstants.RECEIVER_URL);
+            } else if (sourceType.equalsIgnoreCase(ProtobufConstants.GRPC_CALL_RESPONSE_SOURCE_NAME)) {
+                String sinkId = sourceOptionHolder.validateAndGetStaticValue(ProtobufConstants.SINK_ID);
+                url = ProtobufUtils.getURL(siddhiAppContext, "sink",
+                        ProtobufConstants.GRPC_CALL_SINK_NAME,
+                        ProtobufConstants.PUBLISHER_URL, ProtobufConstants.SINK_ID, sinkId);
             }
             if (url != null) {
                 URL aURL;
