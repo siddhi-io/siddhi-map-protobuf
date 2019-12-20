@@ -169,6 +169,11 @@ public class ProtobufSinkMapper extends SinkMapper {
             String url = null;
             if (sinkOptionHolder.isOptionExists(ProtobufConstants.PUBLISHER_URL)) {
                 url = sinkOptionHolder.validateAndGetStaticValue(ProtobufConstants.PUBLISHER_URL);
+            } else if (sinkType.equalsIgnoreCase(ProtobufConstants.GRPC_SERVICE_RESPONSE_SINK_NAME)) {
+                String sourceId = sinkOptionHolder.validateAndGetStaticValue(ProtobufConstants.SOURCE_ID);
+                url = ProtobufUtils.getURL(siddhiAppContext, "source",
+                        ProtobufConstants.GRPC_SERVICE_SOURCE_NAME,
+                        ProtobufConstants.RECEIVER_URL, ProtobufConstants.SOURCE_ID, sourceId);
             }
             if (url != null) {
                 URL aURL;
@@ -329,7 +334,7 @@ public class ProtobufSinkMapper extends SinkMapper {
             Field[] fields = messageBuilderObject.getClass().getDeclaredFields(); //get all available attributes
             throw new SiddhiAppCreationException(siddhiAppName + ": " + streamID + "Attribute name or type does " +
                     "not match with protobuf variable or type. provided attribute '" + attributeName +
-                     "'. Expected one of these attributes " + protobufFieldsWithTypes(fields) + ".",
+                    "'. Expected one of these attributes " + protobufFieldsWithTypes(fields) + ".",
                     e);
         }
     }
@@ -350,7 +355,7 @@ public class ProtobufSinkMapper extends SinkMapper {
                     attributeName + ProtobufConstants.UNDERSCORE).getType())) {
                 return messageBuilderObject.getClass().getDeclaredMethod(ProtobufConstants.SETTER +
                         toUpperCamelCase(attributeName), messageBuilderObject.getClass().getDeclaredField(
-                                attributeName + ProtobufConstants.UNDERSCORE).getType());
+                        attributeName + ProtobufConstants.UNDERSCORE).getType());
             } else {
                 throw new SiddhiAppCreationException("Unknown data type. You should provide either 'map' , 'list' or" +
                         " 'another message type' with 'object' data type");
@@ -370,7 +375,7 @@ public class ProtobufSinkMapper extends SinkMapper {
             messageBuilderObject.getClass().getDeclaredMethod("clear").invoke(messageBuilderObject);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new SiddhiAppRuntimeException(siddhiAppName + ": " + streamID + " : Unable to find 'clear()' " +
-                    "method." , e);
+                    "method.", e);
         }
     }
 

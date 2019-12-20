@@ -24,13 +24,16 @@ public class ProtobufConstants {
 
     public static final String PUBLISHER_URL = "publisher.url";
     public static final String RECEIVER_URL = "receiver.url";
+    public static final String SINK_ID = "sink.id";
+    public static final String SOURCE_ID = "source.id";
     public static final String PORT_SERVICE_SEPARATOR = "/";
     public static final String EMPTY_STRING = "";
     public static final String GRPC_PROTOCOL_NAME = "grpc";
     public static final String DUMMY_PROTOCOL_NAME = "http";
     public static final String GRPC_SERVICE_RESPONSE_SINK_NAME = "grpc-service-response";
     public static final String GRPC_CALL_RESPONSE_SOURCE_NAME = "grpc-call-response";
-    public static final String GRPC_SERVICE_SOURCE_NAME = "grpc-service-source";
+    public static final String GRPC_SERVICE_SOURCE_NAME = "grpc-service";
+    public static final String GRPC_CALL_SINK_NAME = "grpc-call";
     public static final String CLASS_OPTION_HOLDER = "class";
     public static final String STUB_NAME = "Stub";
     public static final String GRPC_PROTOCOL_NAME_UPPERCAMELCASE = "Grpc";

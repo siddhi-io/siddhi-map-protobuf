@@ -17,8 +17,12 @@
  */
 package io.siddhi.extension.map.protobuf.utils;
 
+import io.siddhi.core.config.SiddhiAppContext;
 import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.query.api.SiddhiApp;
+import io.siddhi.query.api.annotation.Annotation;
 import io.siddhi.query.api.definition.Attribute;
+import io.siddhi.query.api.definition.StreamDefinition;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.lang.reflect.Field;
@@ -133,10 +137,11 @@ public class ProtobufUtils {
     }
 
     public static String toUpperCamelCase(String attributeName) {
-       return attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+        return attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
     }
 
     /**
+     * Remove underscore for comparability.
      *
      * @param attributeName
      * @return a String with replacing underscores with uppercase letters.
@@ -144,7 +149,7 @@ public class ProtobufUtils {
     public static String removeUnderscore(String attributeName) {
         StringBuilder sb = new StringBuilder();
         boolean capitalizeNext = false;
-        for (char c :attributeName.toCharArray()) {
+        for (char c : attributeName.toCharArray()) {
             if (c == '_') {
                 capitalizeNext = true;
             } else {
@@ -158,4 +163,20 @@ public class ProtobufUtils {
         }
         return sb.toString();
     }
+
+    public static String getURL(SiddhiAppContext siddhiAppContext, String annotationCategory,
+                                String annotationType, String urlName, String mappingName, String id) {
+        SiddhiApp siddhiApp = siddhiAppContext.getSiddhiApp();
+        for (StreamDefinition streamDefinition : siddhiApp.getStreamDefinitionMap().values()) {
+            for (Annotation annotation : streamDefinition.getAnnotations()) {
+                if (annotationCategory.equalsIgnoreCase(annotation.getName()) &&
+                        annotationType.equalsIgnoreCase(annotation.getElement("type")) &&
+                        id.equalsIgnoreCase(annotation.getElement(mappingName))) {
+                    return annotation.getElement(urlName);
+                }
+            }
+        }
+        return null;
+    }
+
 }
