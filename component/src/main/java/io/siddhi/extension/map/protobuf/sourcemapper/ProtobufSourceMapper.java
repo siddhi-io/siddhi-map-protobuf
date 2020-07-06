@@ -23,12 +23,14 @@ import io.siddhi.annotation.Parameter;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiAppContext;
 import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.MappingFailedException;
 import io.siddhi.core.exception.SiddhiAppCreationException;
 import io.siddhi.core.exception.SiddhiAppRuntimeException;
 import io.siddhi.core.stream.input.source.AttributeMapping;
 import io.siddhi.core.stream.input.source.InputEventHandler;
 import io.siddhi.core.stream.input.source.SourceMapper;
 import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.error.handler.model.ErroneousEvent;
 import io.siddhi.core.util.transport.OptionHolder;
 import io.siddhi.extension.map.protobuf.utils.ProtobufConstants;
 import io.siddhi.extension.map.protobuf.utils.ProtobufUtils;
@@ -267,31 +269,45 @@ public class ProtobufSourceMapper extends SourceMapper {
     }
 
     @Override
-    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler)
+            throws InterruptedException, MappingFailedException {
+        List<ErroneousEvent> failedEvents = new ArrayList<>(0);
         Object[] objectArray = new Object[this.size];
+        boolean malformedEvent = false;
         if (!sourceType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
             try {
                 eventObject = messageObjectClass.getDeclaredMethod(ProtobufConstants.PARSE_FROM_NAME, byte[].class)
                         .invoke(messageObjectClass, eventObject);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + " error while creating the " +
+                String errStr = siddhiAppName + ":" + streamID + " error while creating the " +
                         "protobuf message in " + sourceType + " source, expect the protobuf message as a byte array, "
-                        + e.getMessage(), e);
+                        + e.getMessage();
+                failedEvents.add(new ErroneousEvent(eventObject, e, errStr));
+                log.error(errStr, e);
+                malformedEvent = true;
             }
         }
         for (MappingPositionData mappingPositionData : mappingPositionDataList) {
             Object value;
             try {
                 value = mappingPositionData.getGetterMethod().invoke(eventObject);
+                objectArray[mappingPositionData.getPosition()] = value;
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new SiddhiAppRuntimeException(siddhiAppName + ":" + streamID + " Unknown error occurred during " +
-                        "runtime," + e.getMessage(), e);
+                String errStr = siddhiAppName + ":" + streamID + " Unknown error occurred during " +
+                        "runtime," + e.getMessage();
+                failedEvents.add(new ErroneousEvent(eventObject, e, errStr));
+                log.error(errStr, e);
+                malformedEvent = true;
             } // this error will not throw, All possible scenarios are handled in the init() method.
-            objectArray[mappingPositionData.getPosition()] = value;
         }
-        Event event = new Event();
-        event.setData(objectArray);
-        inputEventHandler.sendEvent(event);
+        if (!malformedEvent) {
+            Event event = new Event();
+            event.setData(objectArray);
+            inputEventHandler.sendEvent(event);
+        }
+        if (!failedEvents.isEmpty()) {
+            throw new MappingFailedException(failedEvents);
+        }
     }
 
     @Override
