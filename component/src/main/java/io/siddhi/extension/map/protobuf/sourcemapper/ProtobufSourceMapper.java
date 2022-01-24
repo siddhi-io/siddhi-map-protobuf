@@ -15,6 +15,8 @@
  */
 package io.siddhi.extension.map.protobuf.sourcemapper;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MapField;
 import io.siddhi.annotation.Example;
@@ -46,7 +48,9 @@ import java.lang.reflect.ParameterizedType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getMethodName;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getRPCmethodList;
@@ -54,6 +58,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.getServiceNam
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.protobufFieldsWithTypes;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.removeUnderscore;
 import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toUpperCamelCase;
+
 
 /**
  * Protobuf SinkMapper converts protobuf message objects in to siddhi events.
@@ -149,6 +154,7 @@ public class ProtobufSourceMapper extends SourceMapper {
     private String siddhiAppName;
     private String streamID;
     private Class messageObjectClass;
+    private Map<String, Integer> registryAttributeMapping = new HashMap();
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
@@ -241,22 +247,20 @@ public class ProtobufSourceMapper extends SourceMapper {
                         "receiver.url or publisher.url should be given. But found neither");
             }
         } else {
-            log.debug(siddhiAppName + ":" + streamID + ": Not a grpc source, getting the protobuf class name from " +
-                    "'class' parameter");
-            if (userProvidedClassName == null) {
-                throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + "No class name provided in the " +
-                        "@map, you should provide the class name with the 'class' parameter");
-            }
-            try {
-                messageObjectClass = Class.forName(userProvidedClassName);
-                Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME); //to
-                // create an builder object of message class
-                messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
-                    InvocationTargetException e) {
-                throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Invalid class name provided " +
-                        "in the 'class' parameter, provided class name: " + userProvidedClassName + "," +
-                        e.getMessage(), e);
+            log.debug(siddhiAppName + ":" + streamID + ": Not a grpc source, trying to get the protobuf class name " +
+                    "from 'class' parameter");
+            if (userProvidedClassName != null) {
+                try {
+                    messageObjectClass = Class.forName(userProvidedClassName);
+                    Method builderMethod = messageObjectClass.getDeclaredMethod(ProtobufConstants.NEW_BUILDER_NAME);
+                    // to create an builder object of message class
+                    messageBuilderObject = builderMethod.invoke(messageObjectClass); // create the  builder object
+                } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+                        InvocationTargetException e) {
+                    throw new SiddhiAppCreationException(siddhiAppName + ":" + streamID + ": Invalid class name " +
+                            "provided in the 'class' parameter, provided class name: " + userProvidedClassName + "," +
+                            e.getMessage(), e);
+                }
             }
         }
         initializeGetterMethods(streamDefinition, messageObjectClass, attributeMappingList);
@@ -274,31 +278,43 @@ public class ProtobufSourceMapper extends SourceMapper {
         List<ErroneousEvent> failedEvents = new ArrayList<>(0);
         Object[] objectArray = new Object[this.size];
         boolean malformedEvent = false;
-        if (!sourceType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
-            try {
-                eventObject = messageObjectClass.getDeclaredMethod(ProtobufConstants.PARSE_FROM_NAME, byte[].class)
-                        .invoke(messageObjectClass, eventObject);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                String errStr = siddhiAppName + ":" + streamID + " error while creating the " +
-                        "protobuf message in " + sourceType + " source, expect the protobuf message as a byte array, "
-                        + e.getMessage();
-                failedEvents.add(new ErroneousEvent(eventObject, e, errStr));
-                log.error(errStr, e);
-                malformedEvent = true;
+
+        if (messageObjectClass != null) {
+            if (!sourceType.toLowerCase().startsWith(ProtobufConstants.GRPC_PROTOCOL_NAME)) {
+                try {
+                    eventObject = messageObjectClass.getDeclaredMethod(ProtobufConstants.PARSE_FROM_NAME, byte[].class)
+                            .invoke(messageObjectClass, eventObject);
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    String errStr = siddhiAppName + ":" + streamID + " error while creating the protobuf message in " +
+                            sourceType + " source, expect the protobuf message as a byte array, " + e.getMessage();
+                    failedEvents.add(new ErroneousEvent(eventObject, e, errStr));
+                    log.error(errStr, e);
+                    malformedEvent = true;
+                }
             }
-        }
-        for (MappingPositionData mappingPositionData : mappingPositionDataList) {
-            Object value;
-            try {
-                value = mappingPositionData.getGetterMethod().invoke(eventObject);
-                objectArray[mappingPositionData.getPosition()] = value;
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                String errStr = siddhiAppName + ":" + streamID + " Unknown error occurred during " +
-                        "runtime," + e.getMessage();
-                failedEvents.add(new ErroneousEvent(eventObject, e, errStr));
-                log.error(errStr, e);
-                malformedEvent = true;
-            } // this error will not throw, All possible scenarios are handled in the init() method.
+            for (MappingPositionData mappingPositionData : mappingPositionDataList) {
+                Object value;
+                try {
+                    value = mappingPositionData.getGetterMethod().invoke(eventObject);
+                    objectArray[mappingPositionData.getPosition()] = value;
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    String errStr = siddhiAppName + ":" + streamID + " Unknown error occurred during " +
+                            "runtime," + e.getMessage();
+                    failedEvents.add(new ErroneousEvent(eventObject, e, errStr));
+                    log.error(errStr, e);
+                    malformedEvent = true;
+                } // this error will not throw, All possible scenarios are handled in the init() method.
+            }
+        } else {
+            if (eventObject instanceof DynamicMessage) {
+                DynamicMessage dynamicMessage = (DynamicMessage) eventObject;
+                for (Descriptors.FieldDescriptor fieldDescriptor : dynamicMessage.getAllFields().keySet()) {
+                    Integer position = registryAttributeMapping.get(fieldDescriptor.getFullName());
+                    if (position != null) {
+                        objectArray[position] = dynamicMessage.getField(fieldDescriptor);
+                    }
+                }
+            }
         }
         if (!malformedEvent) {
             Event event = new Event();
@@ -324,8 +340,14 @@ public class ProtobufSourceMapper extends SourceMapper {
                     Attribute attribute = streamDefinition.getAttributeList().get(i);
                     attributeName = attribute.getName();
                     Attribute.Type attributeType = attribute.getType();
-                    Method getter = getGetterMethod(attributeType, attributeName);
-                    mappingPositionDataList.add(new MappingPositionData(i, getter));
+                    if (messageObjectClass != null) {
+                        // resolve from the class
+                        Method getter = getGetterMethod(attributeType, attributeName);
+                        mappingPositionDataList.add(new MappingPositionData(i, getter));
+                    } else {
+                        // resolve from the registry
+                        registryAttributeMapping.put(attributeName.replace('_', '.'), i);
+                    }
                 }
             } else {
                 for (int i = 0; i < attributeMappingList.size(); i++) {
@@ -333,8 +355,14 @@ public class ProtobufSourceMapper extends SourceMapper {
                     attributeName = attributeMapping.getMapping();
                     int position = attributeMapping.getPosition();
                     Attribute.Type attributeType = streamDefinition.getAttributeList().get(i).getType();
-                    Method getter = getGetterMethod(attributeType, attributeName);
-                    mappingPositionDataList.add(new MappingPositionData(position, getter));
+                    if (messageObjectClass != null) {
+                        // resolve from the class
+                        Method getter = getGetterMethod(attributeType, attributeName);
+                        mappingPositionDataList.add(new MappingPositionData(position, getter));
+                    } else {
+                        // resolve from the registry
+                        registryAttributeMapping.put(attributeName, position);
+                    }
                 }
             }
         } catch (NoSuchMethodException | NoSuchFieldException e) {
@@ -391,5 +419,4 @@ public class ProtobufSourceMapper extends SourceMapper {
             return getterMethod;
         }
     }
-
 }
