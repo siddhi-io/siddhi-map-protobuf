@@ -39,7 +39,8 @@ import io.siddhi.extension.map.protobuf.utils.ProtobufUtils;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.definition.StreamDefinition;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -147,7 +148,7 @@ import static io.siddhi.extension.map.protobuf.utils.ProtobufUtils.toUpperCamelC
         }
 )
 public class ProtobufSourceMapper extends SourceMapper {
-    private static final Logger log = Logger.getLogger(ProtobufSourceMapper.class);
+    private static final Logger log = LogManager.getLogger(ProtobufSourceMapper.class);
     private List<MappingPositionData> mappingPositionDataList;
     private Object messageBuilderObject;
     private int size;
